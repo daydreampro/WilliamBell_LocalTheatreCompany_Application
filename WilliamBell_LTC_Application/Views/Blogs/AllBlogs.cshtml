@@ -1,0 +1,106 @@
+﻿@using WilliamBell_LTC_Application.Models.ViewModels
+@using WilliamBell_LTC_Application.Models
+@model IEnumerable<BlogListViewModel>
+@{
+    ViewBag.Title = "AllBlogs";
+}
+
+
+<script src="~/Scripts/jquery-3.6.0.min.js"
+        type="text/javascript"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#filters-submit").click(function () {
+            var cats = [];
+            $("#blog-filters-categories input:checkbox:checked").each(function () {
+                cats.push($(this).val());
+            });
+
+            if (cats.length > 0) {
+                var url = "@Url.Action("AllBlogs", "Blogs")";
+
+                //send the categories and/or genres selected and get a partial view to render where the current items are
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    data: {categories: cats },
+                    traditional: true,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+                        $("#filter-blogs").html(result);
+                    }
+                });
+            }
+        });
+
+        $("#filters-reset").click(function () {
+
+            var cats = [];
+            $("#blog-filters-categories input:checkbox").each(function () {
+                cats.push($(this).val());
+            });
+
+            $.ajax({
+                url: url = "@Url.Action("AllBlogs", "Blogs")",
+                type: 'GET',
+                data: { categories : cats },
+                traditional: true,
+                contentType: "application/json; charset=utf-8",
+                success: function (result) {
+                    $("#filter-blogs").html(result);
+                }
+            });
+        });
+    });
+</script>
+
+<div class="text-center">
+    <h2 >Blog Posts</h2>
+    <div class="border-bottom" style="width:10%; border-color:#d33f1f!important;  margin:auto; "></div>
+</div>
+
+<hr />
+
+<div class="container bg-white text-center pt-2 pb-2 rounded "  >
+    <a class="text-decoration-none ltc-filter-a" data-toggle="collapse" href="#filters" role="button" aria-expanded="false" aria-controls="filters"><h4>Filters</h4></a>
+    <div class="collapse" id="filters">
+        <form id="blog-filters-form">
+            <div class="d-flex justify-content-around">
+                @{
+                    byte count = 0;
+                    <div class="flex-fill" id="blog-filters-categories">
+                        <h5>Categories</h5>
+                        @foreach (Category c in ViewBag.Categories)
+                        {
+                            count++;
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="filter-checkbox-@c.CategoryId" value="@c.CategoryId" />
+                                <label class="form-check-label" for="filter-checkbox-@c.CategoryId">@c.Name</label>
+                            </div>
+                        }
+                    </div>
+                }
+
+            </div>
+
+
+            <div class="d-flex justify-content-center">
+                <div>
+                    <a id="filters-submit" class="btn btn-dark">Submit</a>
+                </div>
+                <div>
+                    <a id="filters-reset" class="btn btn-danger">Reset</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<hr />
+<br />
+
+<div id="filter-blogs">
+    @{Html.RenderPartial("~/Views/Blogs/_FilterBlogs.cshtml", Model); }
+</div>
+

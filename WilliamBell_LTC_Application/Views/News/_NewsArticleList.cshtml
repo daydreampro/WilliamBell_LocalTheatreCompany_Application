@@ -1,0 +1,44 @@
+﻿@using WilliamBell_LTC_Application.Models.ViewModels
+@using WilliamBell_LTC_Application.Models
+
+@model NewsListViewModel
+
+
+<div class="blog-post">
+
+
+    <div class=" ltc-post-feature-image" style="position:relative;">
+
+        <img class="rounded-top" src="@Url.Content(Model.Image)" style=" object-position:50% 25%; object-fit:cover;  width:100%; top:90%; max-height:250px;" />
+
+    </div>
+
+    <div class=" container">
+        <div>
+            <h1>@Model.Title</h1>
+            <p class="lead">@Model.Posted <span class="text-muted">By <a href="@Url.Action("ViewProfile","Profiles",new { userId = Model.AuthorId })" class="text-decoration-none">@Model.AuthorName</a></span></p>
+
+        </div>
+
+        <br />
+
+        <div class="ltc-news-content " style="margin-bottom:-40px;background-color: #f3ec78;
+    background-image: linear-gradient(180deg, black 50%, white 100%);
+    background-size: 100%;
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    -webkit-text-fill-color: transparent; 
+    -moz-text-fill-color: transparent">
+            @Html.Raw(Model.Content)
+        </div>
+
+
+        <div class="ltc-author-details bg-dark text-light d-flex justify-content-end" style="padding:10px 10px; margin:auto;">
+            <a href="@Url.Action("ViewNews","News",new { postId = Model.PostId })" class="btn btn-light">Read More</a>
+        </div>
+    </div>
+
+
+</div>
+
+<hr />

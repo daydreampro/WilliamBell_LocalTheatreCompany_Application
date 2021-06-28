@@ -1,0 +1,297 @@
+﻿@model WilliamBell_LTC_Application.Models.ViewModels.AllStaffViewModel
+
+@{
+    ViewBag.Title = "All Staff";
+}
+
+<h2>All Staff</h2>
+
+<p>
+<p>@Html.ActionLink("Back", "Dashboard", "Dashboard", null, new { @class = "btn btn-secondary" })</p>
+<button type="button" class="btn btn-success" data-toggle="modal" data-target="#create-new-modal">Create Staff</button>
+</p>
+<table class="table table-sm">
+    <tr>
+        <th>
+            Name
+        </th>
+        <th>
+            Email
+        </th>
+        <th>
+            Staff Since
+        </th>
+        <th>
+            Roles
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.Staff)
+    {
+        <tr>
+            <td>
+                <span id="staff-name-@item.UserId">@item.Name</span>
+            </td>
+            <td>
+                @item.Email
+            </td>
+            <td>
+                @item.JoinDate
+            </td>
+            <td>
+                <span id="staff-roles-@item.UserId">
+                    @foreach (var role in item.StaffRoles)
+                    {
+                        @role<span> | </span>
+
+                    }
+                </span>
+            </td>
+            <td>
+                <div class="dropdown">
+                    <button id="manage-staff-dropdown" class="btn btn-dark dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Manage
+                    </button>
+                    <div id="staff-menu" class="dropdown-menu" aria-labelledby="manage-staff-dropdown">
+                        <!--USER ID-->
+                        <input type="hidden" value="@item.UserId" />
+                        <!--MESSAGE USER-->
+                        <a class="user-function message-user dropdown-item" href=""><i class="fas fa-paper-plane"></i> Message</a>
+                        <!--View USER Profile-->
+                        <a class="user-function message-user dropdown-item" href=""><i class="fas fa-user"></i> View</a>
+                        <!--ADD ROLES-->
+                        <a class="user-function add-roles dropdown-item" href="#add-roles-modal" data-toggle="modal" data-target="#add-roles-modal">
+                            <i class="fas fa-plus"></i> Add Role
+                        </a>
+                        <!--REMOVE ROLES-->
+                        <a class="user-function remove-roles dropdown-item" href="#remove-roles-modal" data-toggle="modal" data-target="#remove-roles-modal">
+                            <i class="fas fa-minus"></i> Remove Role
+                        </a>
+                        <!--SUSPEND USER-->
+                        <a class="user-function suspend-user dropdown-item bg-warning" href="#"><i class="fas fa-ban"></i> Suspend Member</a>
+                        <!--DELETE USER-->
+                        <a class="user-function delete-user dropdown-item bg-danger" href="#"><i class="fas fa-trash"></i> Delete Member</a>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    }
+</table>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //staff info
+        var id = "";
+        var userName = "";
+        var roles = "";
+        //methods for stuff
+        function disableButtons() {
+            $(".roles-modal buttons").prop("disabled", true);
+        }
+        function enableButtons() {
+            $(".roles-modal buttons").prop("disabled", false);
+        }
+        //get staff info when button is pressed
+        //og : $(".user-function")
+        $(".user-function").click(function () {
+            id = $(this).parent().find("input").val();
+            userName = $("#staff-name-" + id).text();
+            roles = $("#staff-roles-" + id).text();
+        });
+
+
+        //add roles
+        $(".add-roles").click(function () {
+            //remove user roles - so they cannot be added again
+            $("#role-add-select option").each(function () {
+                var text = $(this).text();
+                if (roles.indexOf(text) > -1) {
+                    $("#role-add-select option:contains('" + text + "')").hide();
+                }
+            });
+            //mention the user name cuz we is sexy
+            $("#add-roles-body").text("Select a role you would like to add to " + userName + ".");
+        });
+
+        //add roles back to modals
+        $(".roles-modal").on("hide.bs.modal", function () {
+            $("#role-add-select option").each(function () {
+                $(this).show();
+            });
+        });
+
+        //ADD ROLE POST
+        $("#add-role-confrim").click(function () {
+            disableButtons();
+            var role = $("#role-add-select option:selected").val();
+            if (role == -1) {
+                //error
+                $("#add-role-checkboxes span").show();
+            } else {
+                $("#add-role-checkboxes span").hide();
+                //correct role input
+                $.post("/Admin/AddRole", { "userId": id, "roleId": role }, function (data) {
+                    //modal message
+                    $("#add-roles-body").text(data.Message);
+                    if (data.Success) {
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 4500);
+                    } else {
+                        setTimeout(enableButtons(), 1500);
+                    }
+                });
+            }
+        });
+
+        //remove roles - done
+        $(".remove-roles").click(function () {
+            //hide non user roles - so they cannot be attempted to remove
+            $("#role-remove-select option").each(function () {
+                var text = $(this).text();
+                if (roles.indexOf(text) < 0) {
+                    $("#role-remove-select option:contains('" + text + "')").hide();
+                }
+            });
+            //mention the user name cuz we is sexy
+            $("#remove-roles-body").text("Select a role you would like to remove from " + userName + ".");
+        });
+
+        //REMOVE ROLE POST
+        $("#remove-role-confrim").click(function () {
+            disableButtons();
+            var role = $("#role-remove-select option:selected").val();
+            if (role == -1) {
+                //error
+                $("#remove-role-checkboxes span").show();
+            } else {
+                $("#remove-role-checkboxes span").hide();
+                //correct role input
+                $.post("/Admin/RemoveRole", { "userId": id, "roleId": role }, function (data) {
+                    //modal message
+                    $("#remove-roles-body").text(data.Message);
+                    if (data.Success) {
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 4000);
+                    } else {
+                        setTimeout(enableButtons(), 1500);
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+<!-- ADD ROLES Modal -->
+<div id="add-roles-modal" class="roles-modal modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="add-roles-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="add-roles-modal-title">Add Roles</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div id="add-roles-body">
+
+                </div>
+                <div id="add-role-checkboxes" class="form-group">
+                    <label for="role-select">Roles</label>
+                    <select id="role-add-select" class="form-control">
+                        <option value="-1">-- Select Role --</option>
+                        @{
+                            foreach (var r in Model.AllRoles)
+                            {
+                                <option value="@r.Key">@r.Value</option>
+                            }
+                        }
+                    </select>
+                    <span class="invalid-feedback">Please select a role!</span>
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                <button id="add-role-confrim" type="button" class="btn btn-outline-success">Understood</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- REMOVE ROLES Modal -->
+<div id="remove-roles-modal" class="roles-modal modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="remove-roles-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="remove-roles-modal-title">Remove Roles</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="remove-roles-body">
+
+                </div>
+                <div id="remove-role-checkboxes" class="form-group">
+                    <label for="role-remove-select">Roles</label>
+                    <select id="role-remove-select" class="form-control">
+                        <option value="-1">-- Select Role --</option>
+                        @{
+                            foreach (var r in Model.AllRoles)
+                            {
+                                <option value="@r.Key">@r.Value</option>
+                            }
+                        }
+                    </select>
+                    <span class="invalid-feedback">Please select a role!</span>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                <button id="remove-role-confrim" type="button" class="btn btn-outline-danger">Understood</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- CREATE NEW MODAL -->
+<div id="create-new-modal" class="modal fade" data-keyboard="true" tabindex="-1" aria-labelledby="create-new-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="create-new-modal-title">Create new staff</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div>
+                    Select type of staff member you would like to create:
+                </div>
+                <br />
+                <div>
+                    <a class="btn btn-outline-primary" href="@Url.Action("CreateAuthor","Admin",new { type = "Author"})">Author</a>
+                    <a class="btn btn-outline-primary" href="@Url.Action("CreateAuthor","Admin",new { type = "Editor"})">Editor</a>
+                    <a class="btn btn-outline-info" href="@Url.Action("CreateAdmin","Admin",new { type = "Moderator"})">Moderator</a>
+                    <a class="btn btn-outline-info" href="@Url.Action("CreateAdmin","Admin",new { type = "Admin"})">Admin</a>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+

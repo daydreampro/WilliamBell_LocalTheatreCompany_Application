@@ -1,0 +1,68 @@
+﻿@using WilliamBell_LTC_Application.Models.ViewModels
+@using WilliamBell_LTC_Application.Models
+
+@model IEnumerable<ReportDetailViewModel>
+
+<div class="col">
+    <h4>Reports (@Model.Count()):</h4>
+
+    @{int i = 1; }
+    @foreach (ReportDetailViewModel r in Model)
+    {
+        <div id="reports-accordian-@r.ReportId" class="no-focus-btns">
+            <div class="card">
+                <input type="hidden" value="@r.ReportId" />
+
+                <div class="card-header" id="report-heading-@i" style="padding:10px 5px 0 5px">
+                    <h2>
+                        <button id="btn-collapse-report" class="btn-collapse-report btn btn-block text-left text-decoration-none" type="button" data-toggle="collapse"
+                                data-target="#collapse-report-@r.ReportId-@i" aria-expanded="false" aria-controls="collapse-report-@r.ReportId-@i">
+                            <h5>Report #@i<span class="expand-area-btn"><i class="icon-expand-rotate fas fa-arrow-down"></i></span></h5>
+                        </button>
+                    </h2>
+                </div>
+
+                <div id="collapse-report-@r.ReportId-@i" class="collapse report-card">
+                    <div class="card-body">
+                        <div class="row">
+
+                            <div class="col-sm">
+                                <h5>Reasons</h5>
+                                @foreach (string s in r.Reasons)
+                                {
+                                    <span class="badge badge-danger">@s </span>
+                                    
+                                }
+                            </div>
+
+                            <div class="col-sm">
+                                <h5>Extra info:</h5>
+                                <p>@r.ExtraInfo</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        i++;
+    }
+</div>
+
+
+<script type="text/javascript">
+    //just some looks baby
+    $(document).ready(function () {
+        $(".btn-collapse-report").click(function () {
+            if ($(this).attr("title") == "Show") {
+                $(this).attr("title", "Hide");
+            } else {
+                $(this).attr("title", "Show");
+            }
+            if ($(this).find("i").hasClass("fa-arrow-down")) {
+                $(this).find("i").toggleClass("down");
+            } else {
+                $(this).find("i").toggleClass("up");
+            }
+        });
+    });
+</script>

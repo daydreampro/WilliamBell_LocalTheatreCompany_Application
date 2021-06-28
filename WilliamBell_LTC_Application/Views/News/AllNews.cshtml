@@ -1,0 +1,138 @@
+﻿@model IEnumerable<WilliamBell_LTC_Application.Models.ViewModels.NewsListViewModel>
+@using WilliamBell_LTC_Application.Models
+
+@{
+    ViewBag.Title = "News";
+}
+
+
+<main role="main" class="container">
+
+    <div class="row">
+
+        <div class="col-md-10">
+            <br />
+            <div class="text-center">
+                <h2>News</h2>
+                <div class="border-bottom" style="width:10%; border-color:#d33f1f!important;  margin:auto; "></div>
+            </div>
+            <hr />
+
+            @foreach (var news in Model)
+            {
+                Html.RenderPartial("~/Views/News/_NewsArticleList.cshtml", news);
+            }
+
+
+        </div>
+
+        <aside class="col-md-2 "  style="margin-top:55px; max-width:280px; ">
+            <div class="rounded border  border-secondary bg-light position-fixed">
+                <div class="p-4">
+                    <h4 class="font-italic">Previous News</h4>
+                    <ol class="list-unstyled mb-0">
+                        <li><a href="@Url.Action("AllNews", "News")">All</a></li>
+                        @foreach (var d in ViewBag.Dates)
+                        {
+
+                            <li><a href="@Url.Action("AllNews", "News", new { date = d.Value })">@d.Key</a></li>
+                        }
+                    </ol>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+</main>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Image)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Title)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.AuthorName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Synopsis)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Posted)
+        </th>
+        <th>
+            Comments
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                <img src="@Url.Content(item.Image)" class="img-thumbnail" style="max-width:100px; max-height:100px;" />
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AuthorName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Synopsis)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Posted)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NumberOfComments)
+            </td>
+            <td>
+                @Html.ActionLink("Details", "ViewNews", new { postId = item.PostId })
+            </td>
+        </tr>
+    }
+
+</table>*@
+
+

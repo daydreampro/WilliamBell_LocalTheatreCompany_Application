@@ -1,0 +1,675 @@
+﻿@model WilliamBell_LTC_Application.Models.ViewModels.CreateBlogViewModel
+
+@{
+    ViewBag.Title = "Create Blog";
+}
+<script src="~/Scripts/jquery-3.6.0.min.js"
+        type="text/javascript"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //Load fields from session
+        window.onload = function () {
+            var title = sessionStorage.getItem("title");
+            var id = sessionStorage.getItem("id");
+            var content = sessionStorage.getItem("content");
+            var synopsis = sessionStorage.getItem("synopsis");
+
+            if (title != null ) {
+                $("#post-form-title").val(title);
+            }
+            if (id != null) {
+                $("#post-form-id").val(id);
+            }
+            if (content != null) {
+                $("#post-form-content").val(content);
+            }
+            if (synopsis != null) {
+                $("#post-form-synopsis").val(synopsis);
+            }
+
+        }
+        //Save feilds before reload in session
+        window.onbeforeunload = function () {
+            sessionStorage.setItem("title", $("#post-form-title").val());
+            sessionStorage.setItem("id", $("#post-form-id").val());
+            sessionStorage.setItem("content", $("#post-form-content").val());
+            sessionStorage.setItem("synopsis", $("#post-form-synopsis").val());
+        };
+        //save post
+        $("#draft-post-save").click(function () {
+            diableSaveButtons();
+            savePost();
+        });
+
+        //attempt publish
+        $("#draft-post-submit").click(function () {
+            diableSaveButtons();
+            if (checkSaveState()) {
+                if (checkSubmitState()) {
+                    $.when(savePost()).done(function () {
+                        var postId = $("#post-form-id").val();
+                        $.post("/Posts/SubmitPost", { "postId": postId },
+                            function (data) {
+                                if (data.Success) {
+                                    var url = "@Url.Action("MyPendingPosts", "Author")";
+                                    alert("Post successfully submitted for publishing.\nChange me");
+                                    window.location.href = url;
+                                } else {
+                                    alert("Something went wrong!")
+                                }
+                            });
+                    });
+                } else {
+                    enableSaveButtons();
+                }
+            } else {
+                enableSaveButtons();
+            }
+        });
+
+        //DELETE FUNCTIONS
+        $("#delete-post-confirm-btn").click(function () {
+            var postId = $("#post-form-id").val();
+            var url = "@Url.Action("Dashboard","Author")";
+            if (postId > 0) {
+                $.post("/Posts/DeletePost", { "postId": postId, "type" : "Blog" }, function (data) {
+                    //if succesful remove or edit comment
+                    if (data.Success) {
+                        //redirect to dashboard//or clear session data and reload the page
+                        window.location.href = url;
+                    }
+                });
+            } else {
+                //redirect
+                window.location.href = url;
+            }
+        });
+
+
+        function savePost() {
+            if (checkSaveState()) {
+                //sending most data with image
+                var formData = new FormData();
+                var featureImage = $("#post-form-feature-image").prop("files")[0];
+
+                formData.append("PostId", $("#post-form-id").val());
+                formData.append("Title", $("#post-form-title").val());
+                formData.append("Content", $("#post-form-content").val());
+                formData.append("Synopsis", $("#post-form-synopsis").val());
+                formData.append("FeatureImage", featureImage);
+                //sending category data 2nd
+                var categories = [];
+                $("#category-checkboxes input:checkbox:checked").each(function () {
+                    categories.push($(this).val());
+                });
+                var categoryPostUrl = "@Url.Action("SaveBlogCategories", "Posts")";
+
+                $.ajax({
+                    url: "/Posts/SaveBlog",
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    data: formData,
+                    type: 'post',
+                    async: false,
+                    success: function (data) {
+                        $("#post-form-id").val(data.PostId);
+                        //second ajax call for categories
+                        $.ajax({
+                            url: categoryPostUrl,
+                            type: 'post',
+                            dataType: "json",
+                            data: JSON.stringify({ PostId: data.PostId, catIds: categories}),
+                            traditional: true,
+                            contentType: "application/json; charset=utf-8",
+                            success: function () {
+                                alert("Saved Succesfully");
+                                enableSaveButtons();
+                                $("#post-save-time").html(data.TimeSaved);
+                            },
+                            error: function () {
+                                $("#post-save-time").html("Failed to Save");
+                                enableSaveButtons();
+                            }
+                        })
+                    },
+                    error: function () {
+                        $("#post-save-time").html("Failed to Save");
+                        enableSaveButtons();
+                    }
+                });
+            } else {
+                enableSaveButtons();
+            }
+        }
+        //if save feilds required are filled
+        function checkSaveState() {
+            var title = $("#post-form-title").val();
+            var content = $("#post-form-content").val();
+            var synopsis = $("#post-form-synopsis").val();
+
+            var success = true;
+            if (!title.trim()) {
+                $("#post-form-title").addClass("is-invalid");
+                $("#post-title-validation").removeClass("text-hide");
+
+                $("#title-validation-text").show();
+                success = false;
+            } else {
+                $("#post-form-title").removeClass("is-invalid");
+                $("#post-title-validation").addClass("text-hide");
+
+                $("#title-validation-text").hide();
+            }
+
+            if (!content.trim()) {
+                $("#post-form-content").addClass("is-invalid");
+                $("#post-content-validation").removeClass("text-hide");
+
+                $("#content-validation-text").show();
+                success = false;
+            } else {
+                $("#post-form-content").removeClass("is-invalid");
+                $("#post-content-validation").addClass("text-hide");
+
+                $("#content-validation-text").hide();
+            }
+
+            if (!synopsis.trim()) {
+                $("#post-form-synopsis").addClass("is-invalid");
+                $("#post-synopsis-validation").removeClass("text-hide");
+
+                $("#synopsis-validation-text").show();
+                success = false;
+            } else {
+                $("#post-form-synopsis").removeClass("is-invalid");
+                $("#post-synopsis-validation").addClass("text-hide");
+
+                $("#synopsis-validation-text").hide();
+            }
+
+            return success;
+        }
+        //if all feilds required are filled
+        function checkSubmitState() {
+            //check genres and categories has at least one checked
+            var catChecked = $("#category-checkboxes input:checked").length > 0;
+
+            var cats = false;
+            var image = false;
+
+            if (!catChecked) {
+                $("#post-category-validation").removeClass("text-hide");
+                $("#category-validation-text").show("slow");
+                cats =  false;
+            } else {
+                $("#post-category-validation").addClass("text-hide");
+                $("#category-validation-text").hide("slow");
+                cats = true;
+            }
+
+
+            //check image is not empty
+            var image = $("#post-form-feature-image").prop("files")[0];
+            var imageExists = $("#post-form-current-image").val();
+
+            if ((image == null || image == "undefined" || image == "")
+                && (imageExists == null || imageExists == "undefined" || imageExists == "")) {
+
+                $("#post-image-validation").removeClass("text-hide");
+                $("#image-validation-text").show("slow");
+                image = false;
+            } else {
+                $("#post-image-validation").addClass("text-hide");
+                $("#image-validation-text").hide("slow");
+                image = true;
+            }
+            return (cats && image);
+        }
+
+        function diableSaveButtons() {
+            $("#save-time-info-spinner").show();
+            $("#draft-post-save").prop("disabled", true);
+            $("#draft-post-submit").prop("disabled", true);
+            $("#draft-post-delete").prop("disabled", true);
+        }
+        function enableSaveButtons() {
+            setTimeout(function () {
+                $("#save-time-info-spinner").hide();
+                $("#draft-post-save").prop("disabled", false);
+                $("#draft-post-submit").prop("disabled", false);
+                $("#draft-post-delete").prop("disabled", false);
+            }, 1000)
+        }
+    });
+</script>
+
+<div class="container">
+    <h2 class="">Create Blog</h2>
+    <div>
+        <form>
+            <fieldset>
+                <input type="hidden" id="post-form-id" value="@Model.PostId" />
+                <!--Title-->
+                <div class="form-group">
+                    <label for="post-form-feature-image" class=" col-form-label-lg">Post Title</label>
+                    <input id="post-form-title" required type="text" class="col-8 form-control form-control-lg" aria-describedby="title-validation-text"
+                           value="@Model.Title" />
+
+                    <div id="post-title-validation" class="text-hide"><span id="title-validation-text" class="invalid-feedback">Required to Save</span></div>
+
+                </div>
+
+                <!--Feature Image-->
+                <div class="form-group">
+                    <label for="post-form-feature-image" class="col-form-label-lg">Feature Image</label>
+
+                    <input type="hidden" id="post-form-current-image" value="@Model.FeatureImage" />
+
+                    <input id="post-form-feature-image" name="post-form-feature-image" type="file" class="form-control-file  form-control-lg" aria-describedby="image-validation-text" />
+                    @if (!String.IsNullOrEmpty(Model.FeatureImage))
+                    {
+
+                        <img src="@Url.Content(Model.FeatureImage)" style="width:75px; border:1px solid green" />
+                    }
+                    <div id="post-image-validation" class="text-hide is-invalid"><span id="image-validation-text" class="invalid-feedback">A feature image is required to submit</span></div>
+                </div>
+
+                <!--Categories/Genres-->
+                <div class="form-group row ">
+
+                    <label for="post-categories" class="col-2 col-form-label-lg">Categories</label>
+
+                    <div id="post-categories" class="d-flex category-filter">
+
+                        <!--Categories (review)-->
+                        <div class="p-1 flex-fill category-child" id="category-checkboxes">
+
+                            <h5>Categories</h5>
+
+                            <div id="post-category-validation" class="text-hide"><span class="invalid-feedback" id="category-validation-text">Please select at least one Category.</span></div>
+
+                            @foreach (var c in Model.Categories)
+                            {
+                                <div class="form-check">
+                                    @if (Model.SelectedCategories != null)
+                                    {
+                                        if (Model.SelectedCategories.Contains(c.CategoryId))
+                                        {
+                                            <input type="checkbox" class="form-check-input" checked id="genre-check-@c.CategoryId" value="@c.CategoryId" aria-describedby="categories-validation-text" />
+                                        }
+                                        else
+                                        {
+                                            <input type="checkbox" class="form-check-input" id="genre-check-@c.CategoryId" value="@c.CategoryId" aria-describedby="categories-validation-text" />
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <input type="checkbox" class="form-check-input" id="genre-check-@c.CategoryId" value="@c.CategoryId" aria-describedby="categories-validation-text" />
+                                    }
+                                    <label class="form-check-label" for="genre-check-@c.CategoryId">@c.Name</label>
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+                </div>
+
+                <!--Synopsis-->
+                <div class="form-group">
+                    <label for="post-form-synopsis" class="col-form-label-lg">Synopsis</label>
+                    <div id="post-synopsis-validation" class="text-hide is-invalid"><span id="synopsis-validation-text" class="invalid-feedback">Required to Save</span></div>
+                    <textarea id="post-form-synopsis" required class="form-control" style="max-width:none;" rows="5" aria-describedby="synopsis-validation-text">@Model.Synopsis</textarea>
+                </div>
+
+                <!--Content-->
+                <div class="form-group">
+                    <label for="post-form-content" class="col-form-label-lg">Article</label>
+                    <div id="post-content-validation" class="text-hide is-invalid"><span id="content-validation-text" class="invalid-feedback">Required to Save</span></div>
+                    <textarea id="post-form-content" required class="form-control" style="max-width:none" rows="30" aria-describedby="content-validation-text">@Model.Content</textarea>
+                </div>
+
+                <!--Gallery Images-->
+                <!--Input buttons-->
+                <div class="fixed-bottom container  bg-dark" style="border-radius:10px 10px 0 0; padding: 10px 5px 10px 5px;">
+
+                    <div class="container d-flex ">
+                        <div class="">
+                            <!-- BACK TO DASHBOARD-->
+                            <a id="draft-post-back" href="@Url.Action("Dashboard","Dashboard")" class="btn btn-lg btn-light">Back</a>
+
+                            <!--DELETE OR REJECT POST BUTTONS-->
+                            @if (User.IsInRole("Author") || User.IsInRole("Author,Editor"))
+                            {
+                                <input id="draft-post-delete" type="button" value="Delete" class="btn btn-lg btn-danger"
+                                       data-toggle="modal" data-target="#delete-post-modal" />
+                            }
+                            else if (User.IsInRole("Editor") && !User.IsInRole("Author"))
+                            {
+                                <input id="draft-post-reject" type="button" value="Reject" class="btn btn-lg btn-danger"
+                                       data-toggle="modal" data-target="#reject-post-modal" />
+                            }
+
+                            <!--SAVE POST!-->
+                            <input id="draft-post-save" type="button" value="Save" class="btn btn-lg btn-info" />
+
+                            <div id="save-time-info" class="float-right p-2 align-self-center d-flex">
+                                <span id="save-time-info-spinner" style="display:none;">
+                                    <i style="color:white;" class="fa fa-cog fa-spin fa-2x fa-fw" aria-hidden="true"></i>
+                                </span>
+                                <h6 id="post-save-time" class="" style="color:white; margin-left:20px;">@Model.LastSaved</h6>
+                            </div>
+                        </div>
+
+                        <!--SUMBIT OR PUBLISH BUTTONS-->
+                        <div class="flex-fill"></div>
+                        <div class="row">
+                            @if (User.IsInRole("Editor"))
+                            {
+                                <div class="col">
+                                    <input id="post-publish-button" type="button" value="Publish" class="btn btn-lg btn-light"
+                                           data-toggle="modal" data-target="#publish-post-modal" />
+                                </div>
+                            }
+                            @if (User.IsInRole("Editor, Author") || User.IsInRole("Author"))
+                            {
+                                <div class="col">
+                                    <input id="draft-post-submit" type="button" value="Submit" class="btn btn-lg btn-success" />
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+
+        </form>
+    </div>
+</div>
+
+
+<!-- DELETE POST Modal -->
+<div class="modal fade" id="delete-post-modal" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-labelledby="delete-post-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="delete-post-modal">Delete Post?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="delete-post-modal-body" class="modal-body">
+                Are you sure you wish to delete this post?
+            </div>
+            <div class="delete-modal modal-footer">
+                <button id="delete-post-modal-close" type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <button id="delete-post-confirm-btn" type="button" class="btn btn-danger" data->DELETE</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (User.IsInRole("Editor"))
+{
+    <!-- PUBLISH POST Modal -->
+    <div class="modal fade" id="publish-post-modal" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-labelledby="publish-post-modal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="publish-post-modal">Publish Post?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div id="publish-post-modal-body" class="modal-body">
+                    <div id="publish-post-message" style="display:none;"></div>
+
+                    <div id="publish-post-form">
+                        <div>
+                            If you would like to publish this post, please pick a date and time to release,
+                            or click publish now to load the post immediately.
+                        </div>
+
+                        <br />
+
+                        <div class="form-group">
+                            <label for="publish-date-time" class="form">Select Date and Time</label>
+                            <input id="publish-date-time" class="form-control" type="datetime-local" />
+                            <div id="publish-date-time-error" style="display:none;"><span class="invalid-feedback">Please select a date and time.</span></div>
+                        </div>
+                    </div>
+
+                </div>
+                <div id="publish-modal-footer" class="publish-modal modal-footer">
+                    <button id="publish-post-modal-leave" type="button" class="btn btn-secondary" style="display:none;">Close</button>
+                    <button id="publish-post-modal-close" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button id="publish-now-post-confirm-btn" type="button" class="btn btn-success" data->Publish NOW</button>
+                    <button id="publish-post-confirm-btn" type="button" class="btn btn-success" data->Publish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //enable/disable buttons
+            function disableButtons() {
+                $("#publish-post-modal button").prop("disabled", true);
+            }
+            function enableButtons() {
+                $("#publish-post-modal button").prop("disabled", false);
+            }
+            //reset function
+            function resetModal() {
+                //input error
+                $("#publish-date-time-error").hide();
+                $("#publish-date-time-error").find("span").hide();
+                //post error
+                $("#publish-post-message").hide();
+                $("#publish-post-form").show();
+
+                enableButtons();
+            }
+            //Close button
+            $("#publish-post-modal-close").click(function () {
+                resetModal();
+            });
+
+            //Publish button
+            $("#publish-post-confirm-btn").click(function () {
+                disableButtons();
+
+                var dateTime = $("#publish-date-time").val();
+
+                //if date exists?!?!?
+                if (isNaN(Date.parse(dateTime)) == false) {
+                    var id = $("#post-form-id").val();
+                    //post it
+                    $.post("/Editor/PublishPost", {"postId" : id, "releaseDate" : dateTime }, function (data) {
+                        //display success/failure message + reason
+                        $("#publish-post-message").text(data.Message);
+
+                        $("#publish-post-message").show("slow");
+                        $("#publish-post-form").hide("fast");
+                        //if it works
+                        if (data.Success) {
+                            var url = "@Url.Action("Dashboard","Dashboard")";
+                            $("#publish-modal-footer button").hide("fast");
+                            $("#publish-post-modal-leave").show("slow");
+                            setTimeout(function () {
+                                window.location.href = url;
+                            }, 4000);
+                        }
+                        //if there is an error
+                        else {
+                            //reset the modal + close it
+
+                            setTimeout(function () {
+                                $("#publish-post-modal").modal("hide");
+                                resetModal();
+                            }, 5000);
+                        }
+
+                    });
+
+                } else {
+                    $("#publish-date-time-error").show("slow");
+                    $("#publish-date-time-error").find("span").show("slow");
+                }
+
+                setTimeout(function () { enableButtons(); }, 1000);
+            });
+            //leave button
+            $("#publish-post-modal-leave").click(function () {
+                var url = "@Url.Action("Dashboard","Dashboard")";
+                window.location.href = url;
+            })
+
+            //publish now button
+            $("#publish-now-post-confirm-btn").click(function () {
+                disableButtons();
+
+                var id = $("#post-form-id").val();
+                alert(id);
+                    //post it
+                $.post("/Editor/PublishPost", { "postId": id }, function (data) {
+                    //display success/failure message + reason
+                    $("#publish-post-message").text(data.Message);
+
+                    $("#publish-post-message").show("slow");
+                    $("#publish-post-form").hide("fast");
+                    //if it works
+                    if (data.Success) {
+                        //make the fashboard url
+                        var url = "@Url.Action("Dashboard","Dashboard")";
+                        //hide old buttons and show new button to go back
+                        $("#publish-modal-footer button").hide("fast");
+                        $("#publish-post-modal-leave").show("slow");
+                        //send the user to the dashboard after 4 secs
+                        setTimeout(function () {
+                            window.location.href = url;
+                        }, 4000);
+                    }
+                    //if there is an error
+                    else {
+                        //reset the modal + close it
+                        setTimeout(function () {
+                            $("#publish-post-modal").modal("hide");
+                            resetModal();
+                        }, 5000);
+                    }
+                });
+
+                setTimeout(function () { enableButtons(); }, 1000);
+            });
+
+        })
+
+    </script>
+}
+
+@if (User.IsInRole("Editor") && !User.IsInRole("Author"))
+{
+    <!--REJECT MODAL-->
+    <div class="modal fade" id="reject-post-modal" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-labelledby="reject-post-modal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reject-post-modal-title">Delete Post?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div id="reject-post-modal-body-message" class="modal-body" style="display:none;"></div>
+
+                <div id="reject-post-modal-body" class="modal-body">
+                    <div>
+                        You are about to reject a post. If the post is not up to company standards, please input your reason for rejecting the post.
+                    </div>
+                    <br />
+                    <div>
+                        <label for="reject-post-reason">Reason:</label>
+                        <textarea id="reject-post-reason" class="form-control" rows="2"></textarea>
+                        <span id="reject-post-reason-message" class="invalid-feedback">Please input a reason.</span>
+                    </div>
+                </div>
+
+                <div id="reject-modal-footer" class="reject-modal modal-footer">
+                    <button id="reject-post-modal-leave" type="button" class="btn btn-secondary" style="display:none;">Close</button>
+                    <button id="reject-post-modal-close" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button id="reject-post-confirm-btn" type="button" class="btn btn-danger" data->REJECT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //enable/disable buttons
+            function disableButtons() {
+                $("#reject-post-modal button").prop("disabled", true);
+            }
+            function enableButtons() {
+                $("#reject-post-modal button").prop("disabled", false);
+            }
+            //reset function
+            function resetModal() {
+                //input error
+                //TODO
+                enableButtons();
+            }
+            //when attempting to submit rejection
+            $("#reject-post-confirm-btn").click(function () {
+                disableButtons();
+
+                var reason = $("#reject-post-reason").val();
+
+                if (reason == "") {
+                    $("#reject-post-reason-message").show("fast");
+                } else {
+                    var postid = $("#post-form-id").val();
+                    $("#reject-post-reason-message").show("fast");
+
+                    $.post("/Editor/RejectPost", { "postId": postid, "reason": reason }, function (data) {
+                        $("#reject-post-modal-body-message").text(data.Message);
+                        $("#reject-post-modal-body-message").show("slow");
+                        $("#reject-post-modal-body").hide("fast");
+                        if (data.Success) {
+                            //make the fashboard url
+                            var url = "@Url.Action("Dashboard","Dashboard")";
+                            //hide buttons
+                            $("#reject-modal-footer button").hide("fast");
+                            //show leave button
+                            $("#reject-post-modal-leave").show("slow");
+                            //send the user to the dashboard after 4 secs
+                            setTimeout(function () {
+                                window.location.href = url;
+                            }, 4000);
+                        } else {
+                            setTimeout(function () {
+                                $("#reject-post-modal-body-message").hide("fast");
+                                $("#reject-post-modal-body").show("fast");
+                            }, 5000);
+                        }
+
+                    });
+                }
+
+                setTimeout(function () { enableButtons(); }, 1000);
+            });
+
+            //Close button - when the user closes the modal
+            $("#reject-post-modal-close").click(function () {
+                resetModal();
+            });
+            //leave button - when the rejecting succeeds
+            $("#reject-post-modal-leave").click(function () {
+                var url = "@Url.Action("Dashboard","Dashboard")";
+                window.location.href = url;
+            })
+        });
+    </script>
+}

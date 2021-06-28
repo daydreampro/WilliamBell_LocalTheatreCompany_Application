@@ -1,0 +1,85 @@
+﻿@using WilliamBell_LTC_Application.Models.ViewModels
+@model IEnumerable<ArchiveListViewModel>
+
+@{
+    ViewBag.Title = "Draft Posts";
+}
+
+<script src="~/Scripts/jquery-3.6.0.min.js"
+        type="text/javascript"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#draft-posts-table").on("click", $("#post-edit-btn"), function () {
+            sessionStorage.removeItem("title");
+            sessionStorage.removeItem("id");
+            sessionStorage.removeItem("content");
+            sessionStorage.removeItem("synopsis");
+        });
+
+        
+    });
+    
+</script>
+
+<h2>Draft Posts</h2>
+
+<h6>Here are all your posts that are wating to be finished, you may review and edit them before sending for publishing.</h6>
+
+<table id="draft-posts-table" class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Image)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Title)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Synopsis)
+        </th>
+        <th>
+            Last Edited
+        </th>
+        <th>
+            Type
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr class="@(item.IsFlagged ? "flagged-tr text-white"  : "")">
+
+            <td>
+                @if (item.Image != null)
+                {
+                <div style="position:relative;">
+                    <img src="@Url.Content(item.Image)" class="img-thumbnail" style="max-width:100px; max-height:100px; position:relative;" />
+                    @if (item.IsFlagged)
+                    {
+                <span title="This post has been flagged!" class="badge badge-light" style="position: absolute; top: 5px; left: 5px; "><i class="fas fa-flag fa-2x" style="color:red;"></i></span>
+                    }
+                </div>
+               
+
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Synopsis)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Posted)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PostType)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Create" + item.PostType, "Posts", new { postId = item.PostId }, new {  @id = "post-edit-btn"})
+            </td>
+        </tr>
+    }
+
+</table>

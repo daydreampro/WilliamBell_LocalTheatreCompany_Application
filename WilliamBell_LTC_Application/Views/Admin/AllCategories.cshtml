@@ -1,0 +1,76 @@
+﻿@using WilliamBell_LTC_Application.Models.ViewModels
+@model IEnumerable<AllCategoriesViewModel>
+
+<div>
+    <p>@Html.ActionLink("Back", "Dashboard", "Dashboard", null, new { @class = "btn btn-secondary" })</p>
+    <h6>Types</h6>
+
+    <div>
+        @Html.ActionLink("All", "AllCategories", "Admin", new { type = "" }, new { @class = "btn btn-dark" })
+
+        @if (ViewBag.Selected == "Genre")
+        {
+            <button disabled class="btn btn-outline-dark">Genres</button>
+        }
+        else
+        {
+            @Html.ActionLink("Genres", "AllCategories", "Admin", new { type = "Genre" }, new { @class = "btn btn-dark" })
+        }
+
+        @if (ViewBag.Selected == "ReviewCategory")
+        {
+            <button class="btn btn-outline-dark">Review Categories</button>
+        }
+        else
+        {
+            @Html.ActionLink("Review Category", "AllCategories", "Admin", new { type = "ReviewCategory" }, new { @class = "btn btn-dark" })
+        }
+
+        @if (ViewBag.Selected == "Category")
+        {
+            <button disabled class="btn btn-outline-dark">Blog Categories</button>
+
+        }
+        else
+        {
+            @Html.ActionLink("Blog Category", "AllCategories", "Admin", new { type = "Category" }, new { @class = "btn btn-dark" })
+        }
+    </div>
+    <br />
+    <div>
+
+        <button id="categories-list-create" disabled class="btn btn-success">Create</button>
+    </div>
+</div>
+
+<br />
+
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Type)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Type)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.CatId }) |
+            @Html.ActionLink("Details", "Details", new { id=item.CatId }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.CatId })
+        </td>
+    </tr>
+}
+
+</table>

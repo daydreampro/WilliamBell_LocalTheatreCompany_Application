@@ -1,0 +1,64 @@
+﻿@using WilliamBell_LTC_Application.Models.ViewModels
+@using WilliamBell_LTC_Application.Models
+@model IEnumerable<AllReportsViewModel>
+
+@{
+    ViewBag.Title = "AllReports";
+}
+
+<h2>All Reports</h2>
+<p>@Html.ActionLink("Back", "Dashboard", "Dashboard", null, new { @class = "btn btn-secondary" })</p>
+<h6>All reports, with or without a case and with no moderator reviewing.</h6>
+
+<table class="table">
+    <tr>
+        <th>
+            Type
+        </th>
+        <th>
+            Content
+        </th>
+        <th>
+            User
+        </th>
+        <th>
+            Reports
+        </th>
+        <th>
+            Reasons
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                <a href="@Url.Action("AllReports","Admin",new { type = item.ReportItemType })">@item.ReportItemType</a>
+            </td>
+            <td>
+                @item.Title
+            </td>
+            <td>
+                @item.Username
+            </td>
+            <td>
+                @item.ReportCount
+            </td>
+            <td>
+                @foreach (string rr in item.ReportReasons)
+                {
+                    @rr<span>, </span>
+                }
+            </td>
+            <td>
+                @Html.ActionLink("View", "ViewReported" +item.ReportItemType , "Admin", new { id = item.ReportItemId}, new { @class = "btn btn-dark" })
+            </td>
+        </tr>
+    }
+
+</table>
+@if (ViewBag.Count <= 0)
+{
+    <h6>No Reports Found!</h6>
+}

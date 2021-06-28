@@ -1,0 +1,23 @@
+﻿@model WilliamBell_LTC_Application.Models.ViewModels.PostInformationViewModel
+
+
+<div class="ltc-feature col">
+
+    <div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+
+        <div class="col-auto d-none d-lg-block" style="overflow:hidden;">
+            <img class="ltc-image bg-dark" src="@Url.Content(Model.Image)" style=" object-fit:cover; width:100%; max-height:200px;">
+        </div>
+
+        <div class="col p-4 d-flex flex-column position-static">
+            <strong class="d-inline-block mb-2 text-ltc-feature-@Model.PostType">@Model.PostType</strong>
+            <h3 class="mb-0">@Model.Title</h3>
+            <div class="mb-1 text-muted">@Model.PublishDate</div>
+            <p class="card-text mb-auto">@Model.Synopsis</p>
+            <a href="@Url.Action("View" +Model.PostType,Model.Controller,new { postId = Model.PostId})" 
+               class="stretched-link">Continue reading</a>
+        </div>
+
+
+    </div>
+</div>

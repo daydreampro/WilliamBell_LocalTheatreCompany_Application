@@ -1,0 +1,24 @@
+﻿@using WilliamBell_LTC_Application.Models
+@using WilliamBell_LTC_Application.Models.ViewModels
+@model PostInformationViewModel
+
+
+<div class="my-jumbotron jumbotron p-4 p-md-5 text-white rounded" 
+     style="background-image:linear-gradient(to right, #343a40 30%, transparent 100%),url(@Url.Content(Model.Image));
+background-repeat:no-repeat;
+background-size:100% 100%, cover;">
+    <div class="ltc-feature-post col">
+        <div class="col-md-8 px-0">
+
+
+            <h1 class="display-4 font-italic">@Model.Title</h1>
+
+            <p class="lead my-3">@Model.Synopsis</p>
+
+            <p class="lead mb-0"><a href="@Url.Action("View" + Model.PostType,Model.PostType.Equals("News") ? "News" : Model.PostType + "s",new { postId = Model.PostId})" class="text-white font-weight-bold">Continue reading...</a></p>
+        </div>
+        @*<div class="col">
+            <img src="@Url.Content(Model.Image)" />
+        </div>*@
+    </div>
+</div>

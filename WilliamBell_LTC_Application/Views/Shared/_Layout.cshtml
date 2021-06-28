@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Local Theatre Company</title>
+
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+</head>
+
+<body class="bg-light mb-0 pb-0" style="margin-top:0px; padding-top:0px;">
+
+    <div class="ltc-sticky-nav">
+        <div>
+
+            <nav class="navbar-light " style="background-color:white;">
+                <div class="ltc-top-navbar">
+                    <div class="row flex-nowrap justify-content-between align-items-center">
+
+                        <div class="col-4">
+                            @Html.ActionLink("Archive", "Archive", "Posts", null, new { @class = "nav-link" })
+                        </div>
+
+                        <div class="col-4 text-center">
+                            <a class="nav-brand" href="@Url.Action("Index", "Home")"><img  class="ltc-navbar-logo" src="~/Content/Images/Branding/Local_Theatre_Company_Logo.jpg" /></a>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="navbar-right">
+                                <div class="d-flex justify-content-end align-items-center">
+                                    @Html.Partial("_LoginPartial")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+
+
+            <div style="background-color:#d33f1f !important;">
+                <div class="ltc-second-navbar navbar-dark">
+
+                    @{Html.RenderAction("NavBar", "Navbar");}
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+
+
+    </div>
+
+    <footer class="container bg-dark mt-auto py-3" style="background-color:#d33f1f !important;">
+        <div class="d-flex justify-content-around text-center">
+            <div class="reviews">
+                <h4 class="text-light">Reviews</h4>
+                <a href="#" class="text-light nav-link">Category</a>
+                <a href="#" class="text-light  nav-link">Category</a>
+                <a href="#" class="text-light  nav-link">Category</a>
+            </div>
+            <div class="blogs">
+                <h4 class="text-light">Blogs</h4>
+                <a href="#" class="text-light  nav-link nav-item">Category</a>
+                <a href="#" class="text-light  nav-link">Category</a>
+                <a href="#" class="text-light  nav-link">Category</a>
+            </div>
+            <div class=" news">
+                <h4 class="text-light">News</h4>
+                <a href="#" class="text-light  nav-link">Category</a>
+                <a href="#" class="text-light  nav-link">Category</a>
+            </div>
+        </div>
+
+
+
+    </footer>
+    <div class="text-center bg-dark pt-2 container">
+        <p class="text-light">&copy; @DateTime.Now.Year - Local Theatre Company</p>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

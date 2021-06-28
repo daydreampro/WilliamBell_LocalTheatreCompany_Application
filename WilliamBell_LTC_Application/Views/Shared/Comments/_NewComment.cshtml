@@ -1,0 +1,77 @@
+﻿@using WilliamBell_LTC_Application.Models.ViewModels
+@using Microsoft.AspNet.Identity
+@model CommentViewModel
+
+
+<div class="accordion" id="commentAccordian-@Model.CommentId" style="display:none; margin-left:@Model.Padding.ToString()px;">
+
+    <div class="card " style="border: 3px solid red;">
+
+
+        <div class="card-header" id="commentHeading-@Model.CommentId" style="padding:0.2rem;">
+            @{Html.RenderAction("GetMiniProfile", "Profiles", new { userId = Model.UserId, commentId = Model.CommentId });}
+        </div>
+
+
+        <div class="card-subtitle">
+            <p class="card-text"><small class="text-muted">Date Posted: @Model.DateTime</small></p>
+        </div>
+
+        <div id="comment-body-@Model.CommentId" class="card-body">
+            @Model.CommentContet
+        </div>
+
+        @if (User.IsInRole("User"))
+        {
+            if (User.Identity.GetUserId().Equals(Model.UserId))
+            {
+            <div id="edit-comment-@Model.CommentId" class="edit-comment card-body" style="display:none;">
+
+                <form id="edit-comment-form-@Model.CommentId">
+                    <div class="form-group">
+                        <textarea id="edit-comment-text-@Model.CommentId" style="resize:none; max-width:none;" required class="form-control" aria-describedby="edit-validation-text">@Model.CommentContet</textarea>
+                        <div id="edit-comment-validation-message-@Model.CommentId" class="text-hide"><span id="edit-validation-text"></span></div>
+                    </div>
+
+                    <div>
+                        <button type="button" id="edit-comment-submit" class="btn btn-dark">Save</button>
+                        <button type="button" id="edit-comment-cancel" class="btn btn-dark">Cancel</button>
+                    </div>
+                </form>
+            </div>
+            }
+        }
+
+    <div class="comment-footer card-footer" style="padding:1px !important; border-bottom: 3px solid rgba(0, 0, 0, 0.125);">
+        <div class="d-flex justify-content-start align-items-center">
+
+            <div class="comment-footer-likes mr-auto p-2 bd-highlight d-flex justify-content-start align-items-center " data-toggle="tooltip" data-placement="bottom" title="Up: @Model.UpVotes || Down: @Model.DownVotes">
+                <button type="button" value="@Model.CommentId" class="button-comment-up btn btn-dark btn-sm">
+                    <i class="fas fa-thumbs-up"></i>
+                </button>
+                <div class="card-text comment-score comment-score-@Model.CommentId">@Model.Score</div>
+                <button type="button" value="@Model.CommentId" class="button-comment-down btn btn-dark btn-sm">
+                    <i class="fas fa-thumbs-down"></i>
+                </button>
+
+            </div>
+
+            <div class="comment-buttons-right p-2 bd-highlight">
+                <button type="button" value="@Model.CommentId" class="replyButton btn btn-dark" title="Reply">
+                    <i class="fas fa-reply"></i>
+                </button>
+
+                <button type="button" value="@Model.CommentId" class="btn btn-outline-danger float-right" title="Flag Comment"
+                        data-toggle="modal" data-target="#flag-comment-modal">
+                    <i class="fas fa-flag"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+        </div>
+
+</div>
+<div id="commentReply-@Model.CommentId"></div>

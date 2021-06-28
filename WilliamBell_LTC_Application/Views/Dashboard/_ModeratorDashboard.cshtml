@@ -1,0 +1,50 @@
+﻿@using WilliamBell_LTC_Application.Models.ViewModels
+@model ModeratorDashboardViewModel
+
+
+<div id="owned-posts-button" class="d-inline-flex p-2">
+    <a class="btn btn-dashboard" href="@Url.Action("AllCases", "Admin", null)">
+        <i class="fas fa-briefcase fa-10x" style="padding:5px;"></i>
+        <h4>All Cases (@Model.AllPendingCasesCount)</h4>
+    </a>
+</div>
+
+<div id="owned-posts-button" class="d-inline-flex p-2">
+    <a class="btn btn-dashboard" href="@Url.Action("MyOpenCases", "Admin", null)">
+        <i class="fas fa-eye fa-10x" style="padding:5px;"></i>
+        <h4>My Cases (@Model.MyOpenCasesCount)</h4>
+    </a>
+</div>
+
+<div id="owned-posts-button" class="d-inline-flex p-2">
+    <a class="btn btn-dashboard" href="@Url.Action("MyClosedCases", "Admin", null)">
+        <i class="fas fa-eye-slash fa-10x" style="padding:5px;"></i>
+        <h4>My Closed Cases (@Model.MyClosedCasesCount)</h4>
+    </a>
+</div>
+
+<div id="owned-posts-button" class="d-inline-flex p-2">
+    <a class="btn btn-dashboard" href="@Url.Action("AllReports", "Admin", null)">
+        <i class="fas fa-flag fa-10x" style="padding:5px;"></i>
+        <h4>All Reports</h4>
+    </a>
+</div>
+
+<!--View all users-->
+<div id="owned-posts-button" class="d-inline-flex p-2">
+    <a class="btn btn-dashboard" href="@Url.Action("AllUsers","Admin")">
+        <i class="fas fa-address-book fa-10x" style="padding:5px;"></i>
+        <h4>Users</h4>
+    </a>
+</div>
+<!--View Banned words/phrases-->
+<div id="owned-posts-button" class="d-inline-flex p-2">
+    <a class="btn btn-dashboard" href="@Url.Action("AllBannedContent","Admin")">
+        <i class="fas fa-ban fa-10x" style="padding:5px;"></i>
+        <h4>Banned Words/Phrases</h4>
+    </a>
+</div>
+
+
+
+

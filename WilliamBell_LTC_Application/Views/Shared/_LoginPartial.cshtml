@@ -1,0 +1,56 @@
+﻿@using Microsoft.AspNet.Identity
+
+
+
+@if (Request.IsAuthenticated)
+{
+<div class="">
+    @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "form-inline" }))
+    {
+        @Html.AntiForgeryToken()
+
+        if (User.IsInRole("User"))
+        {
+            //check if there are any notifications for user and populate drop box
+            Html.RenderAction("GetBellUserNotifications", "Notifications");
+
+            <div class="nav-item dropdown">
+
+                <a class="nav-link dropdown-toggle" href="#" id="loginNavbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    @if (User.IsInRole("Author"))
+                    {<span>Author</span>}
+                    else if (User.IsInRole("Moderator"))
+                    { <span>Moderator</span>}
+                    else if (User.IsInRole("Admin"))
+                    { <span>Admin</span>}
+                    else if (User.IsInRole("Editor"))
+                    { <span>Editor</span>}
+                    else
+                    {<span>User</span>}
+                </a>
+
+                <div class="dropdown-menu" aria-labelledby="loginNavbarDropdown">
+
+                    @Html.ActionLink("Dashboard", "Dashboard", "Dashboard", null, new { @class = "dropdown-item" })
+                    @Html.ActionLink("Profile", "ViewOwnProfile", "Profiles", null, new { @class = "dropdown-item" })
+                    <div class="dropdown-divider"></div>
+
+                    <a href="javascript:document.getElementById('logoutForm').submit()" class="dropdown-item">Log off</a>
+                </div>
+            </div>
+
+        }
+
+    }
+</div>
+}
+else
+{
+    <div class="nav-item">
+    @Html.ActionLink("Register", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink", @class = "nav-link" })
+    </div>
+    <div class="nav-item">
+    @Html.ActionLink("Log in", "Login", "Account", new { returnUrl = Request.Url.ToString() }, htmlAttributes: new { id = "loginLink",  @class = "nav-link" })
+    </div>
+        
+}

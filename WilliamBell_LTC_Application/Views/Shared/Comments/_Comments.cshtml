@@ -1,0 +1,628 @@
+﻿@model IEnumerable<WilliamBell_LTC_Application.Models.ViewModels.CommentViewModel>
+@using WilliamBell_LTC_Application.Models.ViewModels
+@using Microsoft.AspNet.Identity;
+
+<script src="~/Scripts/jquery-3.6.0.min.js"
+        type="text/javascript"></script>
+
+<script type="text/javascript">
+    //display reply form
+    $(document).ready(function () {
+        var replying = false;//bool to check if reply form is open
+        var id = 0;//id representing the first reply form opened (if closed)
+        var currentId = 0;//id representing the new(if new) form being opend or closed
+        $(".replyButton").click(function () {
+            //move reply-comment-form
+            //by appending it to the correct comment
+            //and showing it
+
+            //if a reply form is not open
+            //open one under the correct id
+            if (!replying) {
+                id = $(this).val();
+
+                $("#commentReply-" + id).prepend($("#reply-comment-form"));
+                $("#reply-comment-form").show('slow');
+                $("#reply-comment-id").val(id);
+                $(this).children().attr("class", "fas fa-times");
+                $(this).attr("title", "Close Reply");
+                replying = true;
+            } else {
+                //if a form is open, check teh id of the form vs the new button clicked
+                //regardless close the form and change the attributes of the buttons
+                currentId = $(this).val();
+
+                $("#reply-comment-form").hide('slow');
+                $(".replyButton").children().attr("class", "fas fa-reply");
+                $(".replyButton").attr("title", "Reply");
+
+                //but if the id's are differnt a different reply button has been clicked
+                //therfore move the form to the new comment, give a timeout to allow for smooth transition
+                if (id != currentId) {
+                    id = $(this).val();
+
+                    setTimeout(function () {
+                        $("#commentReply-" + id).prepend($("#reply-comment-form"));
+                        $("#reply-comment-form").show('slow');
+                    },500);
+
+                    $("#reply-comment-id").val(id);
+                    $(this).children().attr("class", "fas fa-times");
+                    $(this).attr("title", "Close Reply");
+                    //if the id didnt match it means we are still replying
+                    replying = true;
+                } else {
+                    //if it was the same id, the reply was just closed instead
+                    replying = false;
+                }
+
+            }
+        });
+
+    });
+    //add reply
+    $(document).ready(function addReply() {
+        $("#reply-button-submit").on("click",function () {
+            var id = $("#reply-comment-id").val();
+
+            $.post("/Comments/AddReply", { "parentId": id, "content": $("#reply-text-area").val(), "postPage": "@Request.Url.ToString()" },
+                function (data) {
+                    if (!data.Success) {
+                        //error message handling
+                        $("#reply-validation-text").text(data.ErrorMessage);
+                        $("#reply-validation-message").attr("class", "invalid-feedback");
+                        $("#reply-validation-message").removeClass("text-hide");
+
+                        $("#reply-validation-message").show("fast");
+                    } else {
+                        $(".replyButton").children().attr("class", "fas fa-reply");
+                        //if successful
+                        //remove comment area
+                        $("#reply-text-area").val("");
+                        $("#reply-comment-form").hide("quick");
+
+                        //now add it into existence!
+                        //get margin
+                        var margin = parseInt($("#commentAccordian-" + id).css("marginLeft"));
+
+                        //post to return partial view
+                        $.post("@Url.Action("AddNewComment", "Comments")", { commentId: data.Id, padding: margin }, function (res) {
+                            $("#commentReply-" + id).prepend(res).html();
+                        });
+
+                        //show the new comment in the right place
+                        setTimeout(function () {
+                            $("#commentAccordian-" + data.Id).show("slow");
+                        }, 300);
+                    }
+                });
+        });
+    });
+    //Create new comment
+    $(document).ready(function addComment() {
+        //adding a new comment!
+        $("#commentButtonSubmit").on("click",function () {
+            $.post("/Comments/AddComment", { "postId": $("#postId").val(), "content": $("#commentTextArea").val(), "postPage": "@Request.Url.ToString()"},
+                function (data) {
+                    if (!data.Success) {
+                        $("#validationText").text(data.ErrorMessage);
+                        $("#commentValidationMessage").attr("class", "invalid-feedback");
+                        $("#commentValidationMessage").removeClass("text-hide");
+
+                        $("#commentTextArea").addClass("is-invalid");
+                    } else {
+                        //clear text area
+                        $("#commentTextArea").val("");
+
+                        //post to return partial view
+                        $.post("@Url.Action("AddNewComment", "Comments")", { commentId: data.Id }, function (res) {
+                            $("#comments-section").append(res).html();
+                        });
+
+                        //show the new comment in the right place
+                        setTimeout(function () {
+                            $("#commentAccordian-" + data.Id).show("slow");
+                        }, 300);
+                    }
+                });
+        });
+    });
+    //when the page is loaded
+    $(document).ready(function () {
+        //comment selected
+        var commentId = 0;
+        var currentCommentId = 0;
+        var populated = false;
+        var editOpen = false;
+        //EDIT COMMENT FUNCTIONS button
+        //clicking edit button to open form
+        $("#comments-section").on("click", ".comment-edit-btn", function () {
+            var editIcon = $(this).children("i");
+
+            if (!editOpen) {
+                commentId = $(this).val();
+                //open edit and change icon
+                editOpen = true;
+
+                editIcon.addClass("fa-times").removeClass("fa-edit");
+
+                //show edit form
+                $("#comment-body-" + commentId).hide("quick");
+                $("#edit-comment-" + commentId).show("quick");
+
+            } else {
+                //get the new(if) id
+                currentCommentId = $(this).val();
+
+                //regardless close the editing
+                //hide edit form
+                $("#comment-body-" + commentId).show("quick");
+                $("#edit-comment-" + commentId).hide("quick");
+                //change icon
+                $("#comments-section").find(".comment-edit-btn").find("i").addClass("fa-edit").removeClass("fa-times");
+                //editIcon.addClass("fa-edit").removeClass("fa-times");
+
+                //if the id's are different we are moving instead of just closing
+                if (commentId != currentCommentId) {
+                    commentId = $(this).val();
+                    //open edit and change icon
+                    editOpen = true;
+
+                    editIcon.addClass("fa-times").removeClass("fa-edit");
+
+                    //show edit form
+                    $("#comment-body-" + commentId).hide("quick");
+                    $("#edit-comment-" + commentId).show("quick");
+                } else {
+                    //if the id's matched we are only closing
+                    editOpen = false;
+                }
+            }
+        });
+        //clicking on forms submit
+        $("#comments-section").on("click", ".edit-comment-submit", function () {
+            //disable buttons imediately for safety?
+            var button = $(this);
+            button.attr("disabled", true);
+            var text = $("#edit-comment-text-" + commentId).val();
+            //atempt update!
+            $.post("/Comments/EditComment", { "id": commentId, "content": text}, function (data) {
+                //show success or invalid message
+                $("#edit-comment-validation-message-" + commentId).find("span").text(data.Message);
+                $("#edit-comment-validation-message-" + commentId).removeClass("text-hide");
+
+                if (!data.Success) {
+                    //make text show it is invalid
+                    $("#edit-comment-validation-message-" + commentId).attr("class", "invalid-feedback");
+                    $("#edit-comment-text-" + commentId).addClass("is-invalid");
+                    setTimeout(function () {
+                        button.attr("disabled", false);
+                    }, 1000);
+                } else {
+                    $("#edit-comment-form-" + commentId).children("button").hide("fast");
+                    //show valid text color#
+                    $("#edit-comment-validation-message-" + commentId).attr("class", "valid-feedback");
+                    $("#edit-comment-text-" + commentId).addClass("is-valid").removeClass("is-invalid");
+                    //disable editing
+                    $("#edit-comment-text-" + commentId).attr("disabled", true);
+                    //update body
+                    $("#comment-body-" + commentId).text(text);
+                    setTimeout(function () {
+                        //reset the look?!?!
+                        $("#comment-body-" + commentId).show("quick");
+                        $("#edit-comment-" + commentId).hide("quick");
+                        //change icon
+                        $("#comments-section").find(".comment-edit-btn").find("i").addClass("fa-edit").removeClass("fa-times");
+                    }, 3000);
+                    editOpen = false;
+                }
+            });
+        });
+        //closing edit form
+        $("#comments-section").on("click", ".edit-comment-cancel", function () {
+            $("#comment-body-" + commentId).show("quick");
+            $("#edit-comment-" + commentId).hide("quick");
+            //change icon
+            $("#comments-section").find(".comment-edit-btn").find("i").addClass("fa-edit").removeClass("fa-times");
+
+            editOpen = false;
+        });
+
+        //DELETE FUNCTIONS
+        $("#comments-section").on("click", "#comment-delete-btn", function () {
+            commentId = $(this).val();
+        });
+
+        $("#delete-comment-confirm-btn").click(function () {
+            $.post("/Comments/DeleteComment", { "commentId": commentId }, function (data) {
+                //if succesful remove or edit comment
+                if (data.Success) {
+                    //if removing delete it from view
+                    if (data.Removing) {
+                        alert("removing completely");
+                        $("#commentAccordian-" + commentId).hide("quick");
+                        //$("#comments-section").remove("#commentAccordian-" + commentId);
+                    } else {
+                        //if it has comments, remove message and disable buttons
+                        alert("has comments");
+
+                        //edit buttons hide
+                        $("#commentAccordian-" + commentId).find("button").prop("disabled", true);
+                        $("#commentAccordian-" + commentId + " .card-header").find("button").hide("quick");
+
+                    }
+                }
+                //display succes/failure message
+                $("#delete-comment-modal-body").text(data.Message);
+                //change modal
+                $("#delete-comment-confirm-btn").hide("quick");
+                $("#delete-comment-modal-close").html("Close");
+
+                //hiding the modal after 5 secs
+                setTimeout(function () {
+                    $("#delete-comment-modal").modal("hide");
+                    //reset modal
+                    setTimeout(function () {
+                        $("#delete-comment-modal-close").prop("value", "No");
+                        $("#delete-comment-modal-body").text("Are you sure you wish to your comment?");
+                        $("#delete-comment-confirm-btn").show();
+                    }, 500);
+                }, 5000);
+            });
+        });
+        //reseting modal on closing modal
+        $("#delete-comment-modal-close").click(function () {
+            setTimeout(function () {
+                $("#delete-comment-modal-close").prop("value", "No");
+                $("#delete-comment-modal-body").text("Are you sure you wish to DELETE your comment?");
+                $("#delete-comment-confirm-btn").show();
+            }, 500);
+        });
+
+
+        //FLAG COMMENT STUFF!
+        $("#comments-section").on("click", "#comment-flag-button", function () {
+            //get the id of the comment being flagged
+            commentId = $(this).val();
+            //set the input of the report form to id
+            $("#flag-comment-id").val(commentId);
+            //if the selct list has not been populated, populate it
+            if (!populated) {
+                $.post("/Comments/GetReportReasons", function (data) {
+                    $.each(data, function (i, Type) {
+                        $("#flagCommentReasons").append("<option value=" + Type.Value + ">" + Type.Text + "</option>");
+                    });
+                    populated = true;
+                });
+            }
+        });
+        //post flag report
+        $("#flag-comment-modal").on("click", "#flag-comment-confirm-btn", function postFlagReport() {
+            //get form stuff
+            $.post("/Comments/ReportComment",
+                { "commentId": commentId, "reasonId": parseInt($("#flagCommentReasons").find(":selected").val()), "info": $("#flag-comment-info").val() },
+                function (data) {
+                    //hide old contet
+                    $("#flag-comment-modal-body").hide("quick");
+                    $("#flag-comment-confirm-btn").hide("quick");
+                    $("#flag-comment-info").val("");
+                    if (data == false) {
+                        //error message
+                        $("#flag-comment-modal-message").text("Something went wrong, please try again later!").show("quick");
+                    } else {
+                        //success message
+                        $("#flag-comment-modal-message").text("Report sent succesfully!").show("quick");
+                        $("#flag-comment-modal-close").text("Close");
+                    }
+                    setTimeout(function () {
+                        $("#flag-comment-modal").modal("hide");
+                        //reset modal
+                        setTimeout(function () {
+                            $("#flag-comment-modal-body").show();
+                            $("#flag-comment-confirm-btn").show();
+                            $("#flag-comment-modal-message").hide();
+                            $("#flag-comment-modal-close").text("Cancel");
+                        }, 500);
+                    }, 5000);
+                });
+        });
+        //reset flag modal
+        $("#flag-comment-modal-close").click(function resetFlagModal() {
+            setTimeout(function () {
+                $("#flag-comment-modal-body").show();
+                $("#flag-comment-confirm-btn").show();
+                $("#flag-comment-modal-message").hide();
+                $("#flag-comment-modal-close").text("Cancel");
+            }, 500);
+        });
+
+        //change the show/hide replies button
+        $(".button-collapse-replies").click(function () {
+            if ($(this).children().hasClass("fa-comment-slash")) {
+                $(this).children().attr("class", "fas fa-comment");
+                $(this).attr("title", "View Replies");
+            } else {
+                $(this).children().attr("class", "fas fa-comment-slash");
+                $(this).attr("title", "Hide Replies");
+            }
+        });
+
+    });
+
+
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //UP - DOWN VOTES
+        $("#comments-section").on("click", ".button-comment-up", function () {
+            //$(".button-comment-up").click(function () {
+            var id = $(this).val();
+            var btn = $(this);
+            var downBtn = $(this).parent("div").find("button.button-comment-down-active");
+            if (id > 0) {
+                $.post("/Comments/VoteComment", { "commentId": id, "upVote": true }, function (data) {
+                    if (data.Success) {
+                        //update look of upvote
+                        btn.attr("class", "btn ltc-btn-primary button-comment-up-active btn-sm");
+                        downBtn.attr("class", "btn btn-dark button-comment-down btn-sm");
+                        $(".comment-score-" + id).text(data.Score);
+                    }
+                });
+            }
+        });
+        $("#comments-section").on("click", ".button-comment-down", function () {
+            //$(".button-comment-down").click(function () {
+            var id = $(this).val();
+            var btn = $(this);
+            var upBtn = $(this).parent("div").find("button.button-comment-up-active");
+
+            if (id > 0) {
+                $.post("/Comments/VoteComment", { "commentId": id, "upVote": false }, function (data) {
+                    if (data.Success) {
+                        //update look
+                        btn.attr("class", "btn ltc-btn-primary button-comment-down-active btn-sm");
+                        upBtn.attr("class", "btn btn-dark button-comment-up btn-sm");
+                        $(".comment-score-" + id).text(data.Score);
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+@if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var userId = "";
+            var punishment = -2;
+
+            //fill number of days
+            for (var i = 1; i < 51; i++) {
+                $("#punish-user-days").append("<option value='" + i + "'>" + i + "</option>");
+            }
+            //admin-user buttons
+            $(".warn-user").click(function () {
+                userId = $(this).parent().find("input").val();
+                $("#punish-user-modal-title").text("Warn User");
+                $("#number-of-days").hide();
+                punishment = -1;
+            });
+
+            $(".block-user").click(function () {
+                userId = $(this).parent().find("input").val();
+                $("#punish-user-modal-title").text("Block User");
+                $("#number-of-days").show();
+                punishment = -0;
+            });
+
+            $(".suspend-user").click(function () {
+                userId = $(this).parent().find("input").val();
+                $("#punish-user-modal-title").text("Suspend User");
+                $("#number-of-days").show();
+                punishment = 1;
+            });
+            //post button
+            $("#punish-user-confirm").click(function () {
+                disableButtons();
+                //check the state of the form
+                var reason = $("#punish-user-reason").val();
+                var message = $("#punish-user-message").val();
+                var days = $("#punish-user-days").find(":selected").val();
+                //error flags
+                var reasonValid = false;
+                var messageValid = false;
+
+                if (reason == null || reason == "") {
+                    reasonValid = false;
+                    $("#punish-user-modal-reason").show();
+                } else {
+                    reasonValid = true;
+                    $("#punish-user-modal-reason").hide();
+                }
+
+                if (message == null || message == "") {
+                    messageValid = false;
+                    $("#punish-user-modal-message").show();
+                } else {
+                    messageValid = true;
+                    $("#punish-user-modal-message").hide();
+                }
+
+                //post method if valid
+                if (reasonValid && messageValid) {
+
+                    var url = "@Url.Action("PunishUser", "Admin")";
+                    $.post(url, { "userId": userId, "punishment": punishment, "numberOfDays": days, "message": message, "reason": reason },
+                        function (data) {
+                            alert(data.Success);
+                            $("#punish-user-post-message p").text(data.Message);
+                            $("#punish-user-post-message").show();
+
+                            $("#punish-user-modal-body").hide();
+
+                            $("#punish-user-back").show();
+                            $("#punish-user-back").prop("disabled", false);
+
+                            $("#punish-user-close").hide();
+                            $("#punish-user-confirm").hide();
+
+                            setTimeout(function () {
+                                $("#punish-user-modal").modal("hide");
+                                resetModal();
+                            }, 5000);
+                        });
+                }
+
+                enableButtons();
+            });
+
+            $("#punish-user-back").click(function () {
+                $("#punish-user-modal").modal("hide");
+                resetModal();
+            });
+
+            function resetModal() {
+                $("#punish-user-reason").val("");
+                $("#punish-user-message").val("");
+                $("#punish-user-back").hide();
+                $("#punish-user-post-message").hide();
+                $("#punish-user-modal-body").show();
+                $("#punish-user-close").show();
+                $("#punish-user-confirm").show();
+            };
+            function disableButtons() {
+                $("#punish-user-modal button").prop("disabled", true);
+            };
+            function enableButtons() {
+                $("#punish-user-modal button").prop("disabled", false);
+            };
+        });
+    </script>
+
+
+    <!-- User punish Modal -->
+    <div class="modal fade" id="punish-user-modal" data-keyboard="true" tabindex="-1" aria-labelledby="punish-user-modal-title" aria-hidden="false">
+
+        <div class="modal-dialog modal-dialog-centered" style="text-align:start !important;">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="punish-user-modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div id="punish-user-post-message" class="modal-body" style="display:none;">
+                    <p></p>
+                </div>
+
+                <div id="punish-user-modal-body" class="modal-body">
+                    <fieldset>
+                        <div class="form-group">
+                            <label for="punish-user-reason" class="col-form-label">Reason:</label>
+                            <textarea class="form-control" style="resize:none;" id="punish-user-reason" rows="2"></textarea>
+
+                            <span id="punish-user-modal-reason" class="modal-body invalid-feedback" style="display:none;">
+                                Please input a reason!
+                            </span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="punish-user-message" class="col-form-label">Message to user:</label>
+                            <textarea class="form-control" style="resize:none;" id="punish-user-message" rows="2"></textarea>
+
+                            <span id="punish-user-modal-message" class="modal-body invalid-feedback" style="display:none;">
+                                Please input a message!
+                            </span>
+                        </div>
+
+                        <div class="form-group" id="number-of-days" style="display:none;">
+                            <label for="punish-user-days" class="col-form-label">Select length of punishment (days):</label>
+                            <select id="punish-user-days" class="form-control" style="max-width:100px;">
+                                <option value="0">Auto</option>
+                            </select>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="modal-footer">
+                    <button id="punish-user-back" type="button" class="btn btn-danger" data-dismiss="modal" style="display:none;">Close</button>
+
+                    <button id="punish-user-close" type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                    <button id="punish-user-confirm" type="button" class="btn btn-dark" data->Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- DELETE COMMENT Modal -->
+<div class="modal fade" id="delete-comment-modal" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-labelledby="delete-comment-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="delete-comment-modal">Delete Comment?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="delete-comment-modal-body" class="modal-body">
+                Are you sure you wish to delete your comment?
+            </div>
+            <div class="delete-modal modal-footer">
+                <button id="delete-comment-modal-close" type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <button id="delete-comment-confirm-btn" type="button" class="btn btn-danger" data->DELETE</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FLAG COMMENT Modal -->
+<div class="modal fade" id="flag-comment-modal" data-keyboard="true" tabindex="-1" aria-labelledby="flag-comment-modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="flag-comment-modal">Flag Comment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="flag-comment-modal-body" class="modal-body">
+                <fieldset>
+                    <input type="hidden" id="flag-comment-id" />
+                    <label for="flagCommentReasons">Select the reason for report:</label>
+                    <select class="form-control" id="flagCommentReasons">
+                    </select>
+                    <label for="flag-comment-info">Additional Information:</label>
+                    <textarea class="form-control" id="flag-comment-info" rows="2" style="max-width:none;"></textarea>
+                </fieldset>
+            </div>
+            <div id="flag-comment-modal-message" class="modal-body" style="display:none;">
+            </div>
+            <div class="flag-modal modal-footer">
+                <button id="flag-comment-modal-close" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button id="flag-comment-confirm-btn" type="button" class="btn btn-danger" data->Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br />
+<hr />
+
+<div class="container" id="comments-section">
+    <h4>Comments</h4>
+
+    <br />
+    @{
+        foreach (CommentViewModel c in Model)
+        {
+            Html.RenderPartial("~/Views/Shared/Comments/_Comment.cshtml", c);
+            <br />
+        }
+    }
+</div>

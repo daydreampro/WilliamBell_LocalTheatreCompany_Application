@@ -1,0 +1,68 @@
+﻿@model WilliamBell_LTC_Application.Models.ViewModels.MiniProfileViewModel
+@using WilliamBell_LTC_Application.Models
+@using Microsoft.AspNet.Identity;
+
+
+<div class="d-flex justify-content-start align-items-end">
+
+    <img src="@Model.Image"
+         style="width:50px;
+        border-radius:50%;
+        background-color:white;
+        border:1px solid #d33f1f" />
+    <h5 class="card-text" style="margin-left:10px;">@Model.DisplayName</h5>
+
+    @if (User.IsInRole("Moderator") || User.IsInRole("Admin"))
+    {
+        
+        <div class="btn-group dropright">
+            <button id="moderator-user-access" class="btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-user-cog fa-1x" style="font-size:15px;"></i>
+            </button>
+
+            <div class="dropdown-menu">
+                <!--USER ID-->
+                <input type="hidden" value="@Model.UserId" />
+                <!--View USER Profile-->
+                <a class="user-function view-user dropdown-item bg-light" href="@Url.Action("ViewProfile","Profiles", new { userId = Model.UserId})"><i class="fas fa-user"></i> View</a>
+                <!--Warn USER-->
+                <a class="user-function warn-user dropdown-item bg-warning" href="#punish-user-modal" data-toggle="modal" data-target="#punish-user-modal"
+                   ><i class="fas fa-exclamation-circle"></i>  Warn Member</a>
+                <!--Block USER-->
+                <a class="user-function block-user dropdown-item bg-warning" href="#punish-user-modal" data-toggle="modal" data-target="#punish-user-modal"
+                   ><i class="fas fa-volume-mute"></i> Block Member</a>
+                <!--SUSPEND USER-->
+                <a class="user-function suspend-user dropdown-item bg-danger" href="#punish-user-modal" data-toggle="modal" data-target="#punish-user-modal"
+                   ><i class="fas fa-ban"></i> Suspend Member</a>
+            </div>
+        </div>
+    }
+
+    <div class="p-2 flex-grow-1"></div>
+
+    @if (User.IsInRole("User") && ViewBag.Deleted == false)
+    {
+        if (User.Identity.GetUserId().Equals(Model.UserId))
+        {
+            <button id="comment-edit-btn-@ViewBag.CommentId" value="@ViewBag.CommentId" class="comment-edit-btn comment-crud btn">
+                <i class=" align-self-start fas fa-edit"></i>
+            </button>
+            <button id="comment-delete-btn" value="@ViewBag.CommentId" class="comment-crud btn" data-toggle="modal" data-target="#delete-comment-modal">
+                <i class=" align-self-start fas fa-trash-alt"></i>
+            </button>
+        }
+        if (User.IsInRole("Moderator") || User.IsInRole("Admin") && !User.Identity.GetUserId().Equals(Model.UserId))
+        {
+            <button id="comment-delete-btn" value="@ViewBag.CommentId" class="comment-crud btn" data-toggle="modal" data-target="#delete-comment-modal">
+                <i class=" align-self-start fas fa-trash-alt"></i>
+            </button>
+        }
+    }
+</div>
+
+<div class="d-flex justify-content-start" style="margin:5px 0 5px 0;">
+        @foreach (Badge b in Model.Badges)
+        {
+            <img style="width:20px; margin:0 2px 0 2px " src="@b.ImageLocation" data-toggle="tooltip" data-placement="bottom" title="@b.Description" />
+        }
+</div>

@@ -1,0 +1,16 @@
+﻿@using WilliamBell_LTC_Application.Models
+@using WilliamBell_LTC_Application.Models.ViewModels
+
+@model User
+
+
+<div class="col">
+    <div class="card">
+        <div class="card-body">
+            <a href="@Url.Action("ViewProfile","Profiles",new {userId = Model.Id })"><h4>Offender</h4></a> <span>@Model.Email</span>
+            <h6>Previous Warnings: </h6>@Model.NumberOfWarnings
+            <h6>Previous Blockings: </h6> @Model.NumberOfBlockings
+            <h6>Previous Suspensions: </h6>@Model.NumberOfSuspension
+        </div>
+    </div>
+</div>

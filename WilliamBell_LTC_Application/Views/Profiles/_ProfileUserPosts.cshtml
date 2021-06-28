@@ -1,0 +1,12 @@
+﻿@using WilliamBell_LTC_Application.Models.ViewModels
+@using WilliamBell_LTC_Application.Models
+@model IEnumerable<ProfilePostsViewModel>
+
+@foreach (var p in Model)
+{
+<div class="border border m-1 p-1">
+    <div><small class="font-weight-bold">@p.PostType</small></div>
+    <div><small>@p.Title</small></div>
+    <div><a class="" href="@Url.Action("View"+p.PostType,p.Controller,new { postId = p.PostId })"><small>Read More</small></a></div>
+</div>
+}

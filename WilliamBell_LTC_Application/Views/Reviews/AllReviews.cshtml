@@ -1,0 +1,127 @@
+﻿@model IEnumerable<WilliamBell_LTC_Application.Models.ViewModels.ReviewListViewModel>
+@using WilliamBell_LTC_Application.Models
+
+@{
+    ViewBag.Title = "Reviews";
+}
+
+<script src="~/Scripts/jquery-3.6.0.min.js"
+        type="text/javascript"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $("#filters-submit").click(function () {
+            var genres = [];
+            $("#review-filters-genres input:checkbox:checked").each(function () {
+                genres.push($(this).val());
+            });
+
+            var cats = [];
+            $("#review-filters-categories input:checkbox:checked").each(function () {
+                cats.push($(this).val());
+            });
+
+            if (genres.length > 0 || cats.length > 0) {
+                var url = "@Url.Action("AllReviews", "Reviews")";
+
+                //send the categories and/or genres selected and get a partial view to render where the current items are
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    data: { genreIds: genres, categoryIds: cats },
+                    traditional: true,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+                        $("#filter-reviews").html(result);
+                    }
+                });
+            }
+
+        });
+        $("#filters-reset").click(function () {
+            var genres = [];
+            $("#review-filters-genres input:checkbox").each(function () {
+                genres.push($(this).val());
+            });
+
+            var cats = [];
+            $("#review-filters-categories input:checkbox").each(function () {
+                cats.push($(this).val());
+            });
+
+            $.ajax({
+                url: url = "@Url.Action("AllReviews", "Reviews")",
+                type: 'GET',
+                data: { genreIds: genres, categoryIds: cats },
+                traditional: true,
+                contentType: "application/json; charset=utf-8",
+                success: function (result) {
+                    $("#filter-reviews").html(result);
+                }
+            });
+        });
+    });
+</script>
+
+
+<div class="text-center">
+    <h2>Reviews</h2>
+    <div class="border-bottom" style="width:10%; border-color:#d33f1f!important; margin:auto;"></div>
+</div>
+
+<hr />
+
+<div class="container bg-white text-center rounded pt-2 pb-2">
+    <a class="text-decoration-none ltc-filter-a" data-toggle="collapse" href="#filters" role="button" aria-expanded="false" aria-controls="filters"><h4>Filters</h4></a>
+    
+    <div class="collapse" id="filters">
+        <form id="review-filters-form">
+            <div class="d-lg-flex justify-content-around">
+
+                @{
+                    byte count = 0;
+                    <div class="" id="review-filters-genres">
+                        <h5>Genres</h5>
+                        @foreach (Genre g in ViewBag.Genres)
+                        {
+                            count++;
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="filter-checkbox-@g.GenreId" value="@g.GenreId" />
+                                <label class="form-check-label" for="filter-checkbox-@g.GenreId">@g.Name</label>
+                            </div>
+                        }
+                    </div>
+                    count = 0;
+                    <div class="" id="review-filters-categories">
+                        <h5>Categories</h5>
+                        @foreach (ReviewCategory c in ViewBag.Categories)
+                        {
+                            count++;
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="filter-checkbox-@c.Id" value="@c.Id" />
+                                <label class="form-check-label" for="filter-checkbox-@c.Id">@c.Name</label>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+            <hr />
+            <div class="d-flex justify-content-md-center">
+                <div>
+                    <a id="filters-submit" class="btn btn-dark">Submit</a>
+                </div>
+                <div>
+                    <a id="filters-reset" class="btn btn-danger">Reset</a>
+                </div>
+            </div>
+        </form>
+    </div>
+    </div>
+    <br />
+    <hr />
+    <br />
+
+    <div id="filter-reviews">
+        @{Html.RenderPartial("~/Views/Reviews/_FilterReviews.cshtml", Model);}
+    </div>

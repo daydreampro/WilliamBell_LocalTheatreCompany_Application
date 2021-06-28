@@ -1,0 +1,86 @@
+﻿@model WilliamBell_LTC_Application.Models.ViewModels.HomeViewModel
+@using WilliamBell_LTC_Application.Models
+@{
+    ViewBag.Title = "Home Page";
+}
+
+@{Html.RenderPartial("~/Views/Home/_MainFeature.cshtml", Model.FeaturePost); }
+
+
+<div class="row mb-2 align-items-start" style="grid-auto-columns:400px 500px 300px;">
+    @{
+        Html.RenderPartial("~/Views/Shared/Posts/_PostFeature.cshtml", Model.FeatureReview);
+
+        Html.RenderPartial("~/Views/Shared/Posts/_PostFeature.cshtml", Model.FeatureBlog);
+    }
+</div>
+
+<main role="main" class="container">
+
+    <div class="row">
+
+        <div class="col-md-8 blog-main">
+
+            <h1 class="pb-4 mb-4 font-italic border-bottom">
+                About
+            </h1>
+
+            <div class="blog-post">
+                <p>Yeah, she dances to her own beat. Oh, no. You could've been the greatest. 'Cause, baby, <a href="#">you're a firework</a>. Maybe a reason why all the doors are closed. Open up your heart and just let it begin. So très chic, yeah, she's a classic.</p>
+                <blockquote>
+                    <p>Bikinis, zucchinis, Martinis, no weenies. I know there will be sacrifice but that's the price. <strong>This is how we do it</strong>. I'm not sticking around to watch you go down. You think you're so rock and roll, but you're really just a joke. I know one spark will shock the world, yeah yeah. Can't replace you with a million rings.</p>
+                </blockquote>
+                <p>Trying to connect the dots, don't know what to tell my boss. Before you met me I was alright but things were kinda heavy. You just gotta ignite the light and let it shine. Glitter all over the room <em>pink flamingos</em> in the pool. </p>
+                <h2>Heading</h2>
+                <p>Suiting up for my crowning battle. If you only knew what the future holds. Bring the beat back. Peach-pink lips, yeah, everybody stares.</p>
+                <h3>Sub-heading</h3>
+                <p>You give a hundred reasons why, and you say you're really gonna try. Straight stuntin' yeah we do it like that. Calling out my name. ‘Cause I, I’m capable of anything.</p>
+                <pre><code>Example code block</code></pre>
+                <p>Before you met me I was alright but things were kinda heavy. You just gotta ignite the light and let it shine.</p>
+                <h3>Sub-heading</h3>
+                <p>You got the finest architecture. Passport stamps, she's cosmopolitan. Fine, fresh, fierce, we got it on lock. Never planned that one day I'd be losing you. She eats your heart out.</p>
+                <ul>
+                    <li>Got a motel and built a fort out of sheets.</li>
+                    <li>Your kiss is cosmic, every move is magic.</li>
+                    <li>Suiting up for my crowning battle.</li>
+                </ul>
+                <p>Takes you miles high, so high, 'cause she’s got that one international smile.</p>
+                <ol>
+                    <li>Scared to rock the boat and make a mess.</li>
+                    <li>I could have rewrite your addiction.</li>
+                    <li>I know you get me so I let my walls come down.</li>
+                </ol>
+                <p>After a hurricane comes a rainbow.</p>
+            </div><!-- /.blog-post -->
+
+        </div><!-- /.blog-main -->
+
+        <aside class="col-md-4 blog-sidebar">
+            <div class="p-4 mb-3 bg-light rounded">
+                <h4 class="font-italic">Recent</h4>
+                <p class="mb-0">Saw you downtown singing the Blues. Watch you circle the drain. Why don't you let me stop by? Heavy is the head that <em>wears the crown</em>. Yes, we make angels cry, raining down on earth from up above.</p>
+            </div>
+
+            <div class="p-4">
+                <h4 class="font-italic">Archives</h4>
+                <ol class="list-unstyled mb-0">
+                    @foreach (KeyValuePair<string, string> t in ViewBag.SubClasses)
+                    {
+                        <li><a href="@Url.Action("Archive", "Posts", new { typeId = t.Key})">@t.Value</a></li>
+                    }
+
+                </ol>
+            </div>
+
+            <div class="p-4">
+                <h4 class="font-italic">Socials</h4>
+                <ol class="list-unstyled">
+                    <li><a href="#">Twitter</a></li>
+                    <li><a href="#">Facebook</a></li>
+                </ol>
+            </div>
+        </aside><!-- /.blog-sidebar -->
+
+    </div><!-- /.row -->
+
+</main>

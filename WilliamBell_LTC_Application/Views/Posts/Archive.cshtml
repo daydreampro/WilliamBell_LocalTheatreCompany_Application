@@ -1,0 +1,136 @@
+﻿@using WilliamBell_LTC_Application.Models
+@using WilliamBell_LTC_Application.Models.ViewModels
+
+@model IEnumerable<ArchiveListViewModel>
+
+@{
+    ViewBag.Title = "Archive";
+}
+
+<div class="text-center">
+    <h2>Archive</h2>
+    <div class="border-bottom" style="width:10%; border-color:#d33f1f!important; margin:auto;"></div>
+</div>
+
+<hr />
+
+<div class="container bg-white text-center pt-2 pb-2 rounded ">
+    <a class="text-decoration-none ltc-filter-a" data-toggle="collapse" href="#filters" role="button" aria-expanded="false" aria-controls="filters"><h4>Filters</h4></a>
+    <div id="filters" class="collapse">
+        <div class="row p-2 m-2 justify-content-center">
+            <div class="d-flex">
+                <div>
+                    @Html.ActionLink("All", "Archive", "Posts", null, new { @class = "btn btn-dark" })
+                </div>
+                @foreach (var c in ViewBag.SubClasses)
+                {
+                    <div style="margin-left:5px;">
+                        @Html.ActionLink((string)c.Text, "Archive", "Posts", new { typeId = c.Value }, new { @class = "btn btn-dark" })
+                    </div>
+                }
+            </div>
+
+        </div>
+
+
+        <div class="row justify-content-around">
+            <div style="margin-left:50px;">
+                <h6>Genres</h6>
+                <div class="">
+                    @foreach (var g in ViewBag.Genres)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="filter-checkbox-@g.GenreId" value="@g.GenreId" />
+                            <label class="form-check-label" for="filter-checkbox-@g.GenreId">@g.Name</label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div style="margin-left:50px;">
+                <h6>Film Categories</h6>
+                <div class="">
+                    @foreach (var c in ViewBag.ReviewCats)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="filter-checkbox-@c.Id" value="@c.Id" />
+                            <label class="form-check-label" for="filter-checkbox-@c.Id">@c.Name</label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div style="margin-left:50px;">
+                <h6>Blog Categories</h6>
+                <div class="">
+                    @foreach (var c in ViewBag.BlogCats)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="filter-checkbox-@c.CategoryId" value="@c.CategoryId" />
+                            <label class="form-check-label" for="filter-checkbox-@c.CategoryId">@c.Name</label>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<hr />
+
+    <table class="table">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Image)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AuthorName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Synopsis)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Posted)
+            </th>
+            <th>
+                Type
+            </th>
+            <th>
+                Comments
+            </th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <img src="@Url.Content(item.Image)" class="img-thumbnail" style="max-width:100px; max-height:100px;" />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AuthorName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Synopsis)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Posted)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PostType)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NumberOfComments)
+                </td>
+                <td>
+                    @Html.ActionLink("Details", "View" + item.PostType, item.ControllerName, new { postId = item.PostId }, null)
+                </td>
+            </tr>
+        }
+
+    </table>

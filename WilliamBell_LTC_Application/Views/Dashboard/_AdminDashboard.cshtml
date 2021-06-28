@@ -1,0 +1,29 @@
+﻿@using WilliamBell_LTC_Application.Models.ViewModels
+@model AdminDashboardViewModel
+
+
+    
+    <!--View all staff-->
+    <div id="owned-posts-button" class="d-inline-flex p-2">
+        <a class="btn btn-dashboard" href="@Url.Action("AllStaff","Admin")">
+            <i class="fas fa-user-friends fa-10x" style="padding:5px;"></i>
+            <h4>Staff</h4>
+        </a>
+    </div>
+
+<!--View categories-->
+<div id="owned-posts-button" class="d-inline-flex p-2">
+    <a class="btn btn-dashboard" href="@Url.Action("AllCategories","Admin")">
+        <i class="fas fa-filter fa-10x" style="padding:5px;"></i>
+        <h4>Categories (@Model.CategoriesCount)</h4>
+    </a>
+</div>
+
+<!--View categories-->
+<div id="owned-posts-button" class="d-inline-flex p-2">
+    <a class="btn btn-dashboard" href="@Url.Action("AllBadges","Admin")">
+        <i class="fas fa-shield-alt fa-10x" style="padding:5px;"></i>
+        <h4>Badges</h4>
+    </a>
+</div>
+    

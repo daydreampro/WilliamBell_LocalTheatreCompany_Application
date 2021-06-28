@@ -1,0 +1,263 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+
+
+/*my css*/
+
+:root {
+    --ltc-primary: #d33f1f;
+}
+
+/*FORM CONTROL FOCUS! good for all forms*/
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgb(211 63 31 / 50%) !important;
+    border-color: #d33f1f !important;
+}
+
+.comment-footer button{
+    padding:4px;
+    margin:2px;
+}
+
+ .comment-score{
+    margin:5px;
+}
+
+.comment-footer-likes button {
+    padding: 6px;
+}
+
+#comments-section button:focus {
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    box-shadow: none !important;
+}
+
+.btn-dashboard:hover {
+    color: #d33f1f;
+}
+
+.category-filter > .category-child{
+    margin-right:100px;
+}
+
+.btn-dashboard i{
+    padding:5px;
+}
+.btn-dashboard:focus{
+    box-shadow:none;
+}
+.btn-dashboard:focus i {
+        /*text-shadow:-2px -5px 1px red;*/
+}
+
+.no-focus-btns button:focus {
+    box-shadow: none;
+}
+
+
+
+#report-item-condem-modal input,
+select,
+textarea {
+    max-width: none;
+}
+
+
+.expand-area-btn {
+    float: right;
+    margin-right:10px;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    opacity: .5;
+}
+.expand-area-btn:hover {
+    opacity:.75;
+}
+.icon-expand-rotate {
+    -moz-transition: all .3s linear;
+    -webkit-transition: all .3s linear;
+    transition: all .3s linear;
+}
+
+.icon-expand-rotate.down {
+    -ms-transform: rotateX(180deg);
+    -moz-transform: rotateX(180deg);
+    -webkit-transform: rotateX(180deg);
+    transform: rotateX(180deg);
+}
+.icon-expand-rotate.up {
+    -ms-transform: rotateX(-180deg);
+    -moz-transform: rotateX(-180deg);
+    -webkit-transform: rotateX(-180deg);
+    transform: rotateX(-180deg);
+}
+
+.icon-expand-rotate.spin-down {
+    -ms-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+    transform: rotateX(180deg);
+}
+.icon-expand-rotate.spin-up {
+    -ms-transform: rotate(-180deg);
+    -moz-transform: rotate(-180deg);
+    -webkit-transform: rotate(-180deg);
+    transform: rotate(-180deg);
+}
+
+
+.navbar-dark .nav-link{
+    color:white !important;
+}
+.navbar-dark .nav-link:hover {
+    opacity:75%;
+}
+
+.navbar-light .nav-link {
+    color: #343a40 !important;
+}
+.navbar-light .nav-link:hover {
+        opacity: 75%;
+}
+
+.notifications-dropdown .nav-link:hover {
+    opacity: 100% !important;
+}
+
+.ltc-feature-post:after{
+    background:linear-gradient(to right, (rgba(0,0,0,1)), to(rgba(0,0,0,0)));
+}
+
+.ltc-image {
+    object-fit: cover;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    height: 300px;
+}
+
+.my-jumbotron {
+    background-color: #d33f1f;
+}
+
+.text-ltc-primary {
+    color: #d33f1f;
+}
+
+.ltc-link-primary {
+    color: #d33f1f;
+}
+.ltc-link-primary:hover {
+    color: #d15b42;
+}
+
+.text-ltc-feature-Review {
+    color: #d33f1f;
+}
+.text-ltc-feature-Blog {
+    color: #d33f1f;
+}
+.text-ltc-feature-News {
+    color: #d33f1f;
+}
+
+.ltc-post-feature-image {
+    mask-image: linear-gradient(to bottom, #f8f9fa 50%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, #f8f9fa 70%, transparent 100%);
+    -webkit-mask-repeat: no-repeat;
+}
+
+.ltc-feature:hover .ltc-image {
+    transform: scale(1.1);
+    -webkit-transform: scale(1.1);
+    opacity:85%;
+}
+.ltc-image {
+    transition: transform .5s ease;
+    opacity: 80%;
+    object-fit: cover;
+    width: 100%;
+}
+
+.ltc-btn-primary {
+    color:white;
+    background-color: #d33f1f;
+    border-color: #d33f1f;
+}
+    .ltc-btn-primary:hover {
+        color:white;
+        background-color: #dc4d2f;
+        border-color: #dc4d2f;
+    }
+.ltc-filter-a {
+    color: #d33f1f;
+}
+    .ltc-filter-a:hover {
+        color: #9a2e17;
+    }
+
+.ltc-second-navbar {
+    width: 50%;
+    margin: auto;
+}
+@media (max-width: 1025px) {
+    .ltc-second-navbar{
+        width:80%;
+        
+    }
+}
+.ltc-top-navbar{
+    width:65%; 
+    margin:auto
+}
+@media (max-width: 1025px){
+    .ltc-top-navbar {
+        width: 100%;
+    }
+}
+.ltc-navbar-logo{
+    max-height:80px;
+    width:auto;
+}
+@media (max-width: 750px) {
+    .ltc-navbar-logo {
+        max-height: 40px;
+    }
+}
+.ltc-sticky-nav{
+    position:sticky;
+    position: -webkit-sticky;
+    top:0;
+    z-index:1020;
+}
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    .flagged-tr {
+        background: repeating-linear-gradient( -45deg, #602a1e, #602a1e 10px, #212121 10px, #212121 20px );
+    }

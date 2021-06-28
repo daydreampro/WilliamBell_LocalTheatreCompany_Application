@@ -1,0 +1,49 @@
+﻿@using WilliamBell_LTC_Application.Models
+@using WilliamBell_LTC_Application.Models.ViewModels
+@model IEnumerable<BannedPhrasesListViewModel>
+
+@{
+    ViewBag.Title = "Banned Phrases/Words";
+}
+
+<h2>Banned Phrases/Words</h2>
+
+<p>
+<p>@Html.ActionLink("Back", "Dashboard", "Dashboard", null, new { @class = "btn btn-secondary" })</p>
+@Html.ActionLink("Add", "CreateBannedContent", "Admin", null, new { @class = "btn btn-success" })
+</p>
+<hr />
+<div>
+    <a class="btn btn-dark" href="@Url.Action("AllBannedPhrases","Admin")">All</a>
+    <a class="btn btn-dark" href="@Url.Action("AllBannedPhrases","Admin", new { type = "word" })">Words</a>
+    <a class="btn btn-dark" href="@Url.Action("AllBannedPhrases","Admin", new { type = "phrases" })">Phrases</a>
+</div>
+<br />
+
+<table class="table table-sm">
+    <tr>
+        <th>
+            Type
+        </th>
+        <th>
+            Content
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @item.Type
+            </td>
+            <td>
+                @item.Phrase
+            </td>
+            <td>
+                @Html.ActionLink("Delete", "DeleteBannedContent", "Admin", new { id = item.Id }, new { @class = "btn btn-danger" })
+            </td>
+        </tr>
+    }
+
+</table>

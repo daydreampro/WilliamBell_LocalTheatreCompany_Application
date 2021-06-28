@@ -1,0 +1,384 @@
+﻿@model WilliamBell_LTC_Application.Models.ViewModels.ReviewDetailsViewModel
+@using WilliamBell_LTC_Application.Models
+@using Microsoft.AspNet.Identity;
+
+
+@{
+    ViewBag.Title = Model.Title;
+}
+
+@if (User.IsInRole("User"))
+{
+    <script src="~/Scripts/jquery-3.6.0.min.js"
+            type="text/javascript"></script>
+
+
+    <script type="text/javascript">
+        //FLAG Post STUFF!
+        var reasonsPopulated = false;
+        $(document).ready(function () {
+            $("#report-post-modal").on("show.bs.modal", function () {
+                //if the selct list has not been populated, populate it
+                if (!reasonsPopulated) {
+                    $.post("/Comments/GetReportReasons", function (data) {
+                        $.each(data, function (i, Type) {
+                            $("#report-post-reasons").append("<option value=" + Type.Value + ">" + Type.Text + "</option>");
+                        });
+                        reasonsPopulated = true;
+                    });
+                }
+            });
+
+            //post flag report
+            $("#report-post-modal").on("click", "#report-post-confirm-btn", function postFlagReport() {
+                //get form stuff
+                var postId = $("#report-post-id").val();
+                var reasonId = parseInt($("#report-post-reasons").find(":selected").val());
+                var info = $("#report-post-info").val();
+
+                $.post("/Posts/ReportPost",
+                    { "postId": postId, "reasonId": reasonId, "info": info },
+                    function (data) {
+                        //hide old contet
+                        $("#report-post-modal-body").hide("quick");
+                        $("#report-post-confirm-btn").hide("quick");
+                        $("#report-post-info").val("");
+                        //shoiw message
+                        $("#report-post-message").text(data.Message).show("quick");
+                        if (data.Success) {
+                            //success
+                            $("#report-post-modal-close").text("Close");
+                            $(".report-post").prop("disabled", true);
+                        }
+
+                        setTimeout(function () {
+                            $("#report-post-modal").modal("hide");
+                            //reset modal
+                            setTimeout(function () {
+                                $("#report-post-modal-body").show();
+                                $("#report-post-confirm-btn").show();
+                                $("#report-post-modal-message").hide();
+                                $("#report-post-modal-close").text("Cancel");
+                            }, 500);
+                        }, 5000);
+                    });
+            });
+            //reset flag modal
+            $("#report-post-modal-close").click(function resetFlagModal() {
+                setTimeout(function () {
+                    $("#report-post-modal-body").show();
+                    $("#report-post-confirm-btn").show();
+                    $("#report-post-modal-message").hide();
+                    $("#report-post-modal-close").text("Cancel");
+                }, 500);
+            });
+        });
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //UP - DOWN VOTE
+            var id = @Model.PostId;
+            //UP
+            $(".btn-post-up").on("click", function () {
+                //save this button
+                var btn = $(this);
+                //get the oposite button
+                var downBtn = $(this).parent("div").find("button.btn-post-down");
+
+                if (id > 0) {
+                    $.post("/Posts/VotePost", { "postId": id, "upVote": true }, function (data) {
+                        if (data.Success) {
+                            //update look of upvote and disable
+                            btn.prop("disabled", true)
+                            btn.css("color", "#d33f1f");
+
+                            //enable oposite button
+                            downBtn.prop("disabled", false);
+                            downBtn.css("color", "#212529");
+                            //update socre
+                            $(".post-score").text(data.Score);
+                        }
+                    });
+                }
+            });
+
+            //DOWN
+            $(".btn-post-down").on("click",  function () {
+                var btn = $(this);
+                var upBtn = $(this).parent("div").find("button.btn-post-up");
+
+                if (id > 0) {
+                    $.post("/Posts/VotePost", { "postId": id, "upVote": false }, function (data) {
+                        if (data.Success) {
+                            //update look of upvote and disable
+                            btn.prop("disabled", true)
+                            btn.css("color", "#d33f1f");
+
+                            //enable oposite button
+                            upBtn.prop("disabled", false);
+                            upBtn.css("color", "#212529");
+                            //update socre
+                            $(".post-score").text(data.Score);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+    <!--REPORT POST MODAL-->
+    <div class="modal fade" id="report-post-modal" data-keyboard="true" tabindex="-1" aria-labelledby="report-post-modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="report-post-modal-title">Report Post</h5>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                </div>
+                <div id="report-post-modal-body" class="modal-body">
+                    <fieldset>
+                        <input type="hidden" id="report-post-id" value="@Model.PostId" />
+                        <label for="report-post-reasons">Select the reason for report:</label>
+                        <select class="form-control" id="report-post-reasons">
+                        </select>
+                        <label for="report-post-info">Additional Information:</label>
+                        <textarea class="form-control" id="flag-comment-info" rows="2" style="max-width:none;"></textarea>
+                    </fieldset>
+                </div>
+                <div id="report-post-message" class="modal-body" style="display:none;"></div>
+
+                <div class="flag-modal modal-footer">
+                    <button id="report-post-modal-close" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button id="report-post-confirm-btn" type="button" class="btn btn-danger" data->Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (User.IsInRole("Admin"))
+{
+    <script type="text/javascript">
+        //ADMIN PULL Post STUFF!
+        var reasonsPopulated = false;
+        $(document).ready(function () {
+            $("#admin-pull-post-modal").on("click", "#admin-pull-post-confirm-btn", function () {
+                //get form stuff
+                var postId = $("#admin-pull-post-id").val();
+                var reason = $("#admin-pull-post-reasons").val();
+                var message = $("#admin-pull-post-info").val();
+                //check validility
+                var reasonValid = false;
+                var messageValid = false;
+
+                if (reason.length <= 0) {
+                    //error msg
+                    reasonValid = false;
+                    $("#admin-pull-post-reason-required").show();
+                } else {
+                    reasonValid = true;
+                    $("#admin-pull-post-reason-required").hide();
+                }
+
+                if (message.length <= 0) {
+                    //error msg
+                    messageValid = false;
+                    $("#admin-pull-post-message-required").show();
+                } else {
+                    messageValid = true;
+                    $("#admin-pull-post-message-required").hide();
+                }
+
+                if (reasonValid && messageValid) {
+                    $.post("/Admin/PullPost",
+                        { "postId": postId, "reason": reason, "message": message },
+                        function (data) {
+                            //hide old contet
+                            $("#admin-pull-post-modal-body").hide("quick");
+                            $("#admin-pull-post-confirm-btn").hide("quick");
+                            $("#admin-pull-post-info").val("");
+                            $("#report-post-reasons").val("");
+                            //shoiw message
+                            $("#admin-pull-post-message").text(data.Message).show("quick");
+                            if (data.Success) {
+                                //success
+                                $("#admin-pull-post-modal-close").text("Close");
+                                $(".admin-pull-post").prop("disabled", true);
+                            }
+
+                            setTimeout(function () {
+                                $("#admin-pull-post-modal").modal("hide");
+                                //reset modal
+                                setTimeout(function () {
+                                    $("#admin-pull-post-modal-body").show();
+                                    $("#admin-pull-post-confirm-btn").show();
+                                    $("#admin-pull-post-modal-message").hide();
+                                    $("#readmin-pullort-post-modal-close").text("Cancel");
+                                }, 500);
+                            }, 5000);
+                        });
+                }
+            });
+            //reset flag modal
+            $("#admin-pull-post-modal-close").click(function resetFlagModal() {
+                setTimeout(function () {
+                    $("#admin-pull-post-modal-body").show();
+                    $("#admin-pull-post-confirm-btn").show();
+                    $("#admin-pull-post-modal-message").hide();
+                    $("#admin-pull-post-modal-close").text("Cancel");
+                }, 500);
+            });
+        });
+    </script>
+    <!--ADMIN PULL POST MODAL-->
+    <div class="modal fade" id="admin-pull-post-modal" data-keyboard="true" tabindex="-1" aria-labelledby="admin-pull-post-modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="admin-pull-post-modal-title">Pull Post</h5>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                </div>
+                <div id="admin-pull-post-modal-body" class="modal-body">
+                    <p>If the you have seen reason to pull this post please input the reason and aditional information!</p>
+
+                    <fieldset>
+                        <input type="hidden" id="admin-pull-post-id" value="@Model.PostId" />
+                        <div>
+                            <label for="admin-pull-post-reasons">Enter the reason for report:</label>
+                            <textarea class="form-control" id="admin-pull-post-reasons" rows="2" style="max-width:none;"></textarea>
+                            <span id="admin-pull-post-reason-required" class="modal-body invalid-feedback" style="display:none;">
+                                Please input a reason!
+                            </span>
+                        </div>
+                        <div>
+                            <label for="admin-pull-post-info">Message to Author:</label>
+                            <textarea class="form-control" id="admin-pull-post-info" rows="2" style="max-width:none;"></textarea>
+                            <span id="admin-pull-post-message-required" class="modal-body invalid-feedback" style="display:none;">
+                                Please input a message!
+                            </span>
+                        </div>
+                    </fieldset>
+                </div>
+                <div id="admin-pull-post-message" class="modal-body" style="display:none;"></div>
+
+                <div class="flag-modal modal-footer">
+                    <button id="admin-pull-post-modal-close" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button id="admin-pull-post-confirm-btn" type="button" class="btn btn-danger" data->Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!--FEATURE IMAGE-->
+<div class=" ltc-post-feature-image" style="position:relative;">
+
+    <div class="ltc-review-score" style="position: absolute; top: 1%; left: 1%; ">
+        <div class="Stars rounded-pill bg-dark" style="padding:5px 10px;">
+            <h4 style="color:gold; ">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star-half-alt"></i>
+                <i class="far fa-star "></i>
+            </h4>
+        </div>
+
+    </div>
+
+    <img class="rounded-top" src="@Url.Content(Model.Image)" style=" object-fit:cover; width:100%; " />
+
+</div>
+
+<!--POST-->
+<div class="container">
+    <!--META DATA-->
+    <div>
+        <div class="d-flex justify-content-between">
+            <h1>@Model.Title</h1>
+
+            @if (User.IsInRole("User"))
+            {
+                <div class="no-focus-btns">
+                    <!--LIKES-->
+                    <button class="btn btn-post-up" title="Like" @(Model.UserVote != null ? (Model.UserVote.UpVote ? "disabled style=color:#d33f1f" : "") : "")>
+                        <i class="fas fa-thumbs-up"></i>
+                    </button>
+                    <span class="post-score">@Model.PostScore</span>
+
+                    <button class="btn btn-post-down" title="Dislike" @(Model.UserVote != null ? (!Model.UserVote.UpVote ? "disabled style=color:#d33f1f " : "") : "")>
+                        <i class="fas fa-thumbs-down"></i>
+                    </button>
+
+
+                    <!--Comment-->
+                    <a id="comment-scroll-to" class="btn" href="#add-comment-section" title="Comment"><i class="fas fa-comment"></i></a>
+
+                    <!--SHARE-->
+                    <a class="btn" title="Share Post"><i class="fas fa-share-alt"></i></a>
+
+                    <!--REPORT OR FLAG-->
+                    @if (!User.IsInRole("Admin"))
+                    {
+                        <a class="btn report-post" href="#report-post-modal" data-toggle="modal" data-target="#report-post-modal" title="Report Post"><i class="fas fa-flag"></i></a>
+                    }
+                    else if (User.IsInRole("Admin"))
+                    {
+                        <a class="btn admin-pull-post" href="#admin-pull-post-modal" data-toggle="modal" data-target="#admin-pull-post-modal" title="Pull Post"><i class="fas fa-eraser"></i></a>
+                    }
+
+                </div>
+            }
+        </div>
+        <p class="lead">@Model.Posted <span class="text-muted">By <a href="@Url.Action("ViewProfile","Profiles",new { userId = Model.AuthorId })" class="text-decoration-none">@Model.AuthorName</a></span></p>
+
+        <!--REVIEW CATEGORIES AND GENRES-->
+        @foreach (var c in Model.Categories)
+        {
+            <a class="text-decoration-none" href="@Url.Action("AllReviews","Reviews",new { categoryId = c.Id})"><span class="badge badge-pill badge-dark">@c.Name</span></a>
+        }
+        @foreach (var g in Model.Genres)
+        {
+            <a href="@Url.Action("AllReviews","Reviews",new { genreId = g.GenreId})"><span class="badge badge-pill badge-secondary">@g.Name</span></a>
+        }
+    </div>
+
+    <br />
+
+    <!--Main Body-->
+    <div class="ltc-post-content">
+        @Html.Raw(Model.Content)
+    </div>
+
+    <hr />
+    <!--AUTHOR DETAILS-->
+    @{Html.RenderAction("GetAuthorCredit", "Profiles", new { authorId = Model.AuthorId });}
+
+    <hr />
+</div>
+
+<!--COMMENTS-->
+<div>
+    @{ Html.RenderPartial("~/Views/Shared/Comments/_Comments.cshtml", Model.Comments);}
+
+    <br />
+    <div id="add-comment-section">
+        @{Html.RenderPartial("~/Views/Shared/Comments/_AddCommentForm.cshtml", Model.PostId);}
+    </div>
+</div>
+
+@{ Html.RenderPartial("~/Views/Shared/Comments/_AddReplyForm.cshtml");}
+
+
+
+
+
+

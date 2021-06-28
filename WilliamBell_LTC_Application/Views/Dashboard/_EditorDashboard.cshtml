@@ -1,0 +1,25 @@
+﻿@using WilliamBell_LTC_Application.Models.ViewModels
+@model EditorDashboardViewModel
+
+<!--Pending posts-->
+<div id="owned-posts-button" class="d-inline-flex p-2">
+    <a class="btn btn-dashboard" href="@Url.Action("AllPendingPosts", "Editor", null)">
+        <i class="fas fa-clock fa-10x" style="padding:5px;"></i>
+        <h4>Pending (@Model.PendingPosts)</h4>
+    </a>
+</div>
+<!--Draft posts-->
+<div id="owned-posts-button" class="d-inline-flex p-2">
+    <a class="btn btn-dashboard" href="@Url.Action("MyDraftPosts", "Editor", null)">
+        <i class="fas fa-pen-fancy fa-10x" style="padding:5px;"></i>
+        <h4>Draft (@Model.DraftPosts)</h4>
+    </a>
+</div>
+<!--Published posts-->
+@*<div id="owned-posts-button" class="d-inline-flex p-2">
+        <a class="btn btn-dashboard" href="@Url.Action("MyPublishedPosts", "Editor", null)">
+            <i class="fas fa-book fa-10x" style="padding:5px;"></i>
+            <h4>Published (@Model.CompletedPosts)</h4>
+        </a>
+    </div>
+*@

@@ -1,0 +1,11 @@
+﻿@using WilliamBell_LTC_Application.Models.ViewModels
+@using WilliamBell_LTC_Application.Models
+@model IEnumerable<BlogListViewModel>
+
+
+<div class="row-cols-1">
+    @foreach (var b in Model)
+    {
+        Html.RenderPartial("~/Views/Blogs/_BlogArticleList.cshtml", b);
+    }
+</div>

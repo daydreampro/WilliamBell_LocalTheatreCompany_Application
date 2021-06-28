@@ -1,0 +1,10 @@
+﻿@using WilliamBell_LTC_Application.Models.ViewModels
+@using Microsoft.AspNet.Identity
+@model IEnumerable<WilliamBell_LTC_Application.Models.ViewModels.CommentViewModel>
+
+@{
+    foreach (CommentViewModel c in Model)
+    {
+        Html.RenderPartial("~/Views/Shared/Comments/_Comment.cshtml", c);
+    }
+}

@@ -1,0 +1,46 @@
+﻿@model IEnumerable<WilliamBell_LTC_Application.Models.Badge>
+
+@{
+    ViewBag.Title = "AllBadges";
+}
+
+<h2>All Badges</h2>
+<p>
+    @Html.ActionLink("Back", "Dashboard", "Dashboard", null, new { @class = "btn btn-secondary" })
+</p>
+<p>
+    @Html.ActionLink("Create New", "CreateBadge","Admin",null,new { @class="btn btn-success"})
+</p>
+<table class="table">
+    <tr>
+        <th>
+            Image
+        </th>
+        <th>
+            Badge Name
+        </th>
+        <th>
+            Description
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            <img src="@Url.Content(item.ImageLocation)" style="max-width:150px;"/>
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.BadgeName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Description)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "EditBadge", "Admin", new { id = item.BadgeId }, new { @class = "btn btn-primary" })
+            @Html.ActionLink("Delete", "DeleteBadge", "Admin", new { id = item.BadgeId }, new { @class = "btn btn-danger" })
+        </td>
+    </tr>
+}
+
+</table>

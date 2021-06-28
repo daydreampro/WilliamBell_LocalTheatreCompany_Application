@@ -1,0 +1,128 @@
+﻿@using WilliamBell_LTC_Application.Models.ViewModels
+@model AuthorDashboardViewModel
+
+
+
+<script type="text/javascript">
+    $(document).ready(function AUTHOR_FUNCTIONS () {
+
+        $("#manyPostTypes").click(function () {
+            $("#post-type-modal").modal('show');
+        });
+
+        $("#post-type-modal-confirm-btn").click(function () {
+            resetSessionPostData();
+            var type = $("#postTypes").find(":selected").val();
+            var url = "@Url.Action("Create_type_", "Posts")";
+            //check what type is selected
+            //if it is redirect to new post, with parametre
+            if (type != "") {
+                window.location.href = url.replace('_type_', type.toString());
+            } else {//otherwise alert the user to lack of selection!
+                $("#post-type-modal-message").show("fast");
+
+                setTimeout(function () {
+                    $("#post-type-modal-message").hide("fast");
+                }, 5000);
+            }
+        });
+
+        $("#onePost").click(function () {
+            resetSessionPostData();
+
+            var oneType = "@Model.Types.First().Value";
+            var url = "@Url.Action("Create_type_", "Posts")";
+            window.location.href = url.replace('_type_', oneType);
+
+        });
+
+        //reset any cookies for forms, if a new one is clicked
+        function resetSessionPostData() {
+            sessionStorage.removeItem("title");
+            sessionStorage.removeItem("id");
+            sessionStorage.removeItem("content");
+            sessionStorage.removeItem("synopsis");
+            sessionStorage.removeItem("image");
+        }
+
+    });
+</script>
+
+
+<!--MODAL For selecting post type-->
+@if (Model.ClassCount > 1)
+{
+    <div class="modal fade" id="post-type-modal" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-labelledby="post-type-modal" aria-hidden="false">
+        <div class="modal-dialog modal-dialog-centered" style="text-align:start !important;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="post-type-modal">Choose type of post!</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+
+                <div id="post-type-modal-body" class="modal-body">
+                    <fieldset>
+                        <input type="hidden" id="flag-comment-id" />
+                        <label for="postTypes">Select the type of post:</label>
+                        @Html.DropDownListFor(m => m.TypeId, Model.Types, "-- Select One --", new { @class = "form-control", @id = "postTypes" })
+                        <span id="post-type-modal-message" class="modal-body invalid-feedback" style="display:none;">
+                            Please select a post type!
+                        </span>
+                    </fieldset>
+                </div>
+
+
+
+                <div class="post-type-modal modal-footer">
+                    <button id="post-type-modal-close" type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                    <button id="post-type-modal-confirm-btn" type="button" class="btn btn-dark" data->Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+<!--Published posts-->
+<div id="owned-posts-button" class="d-inline-flex p-2">
+    <a class="btn btn-dashboard" href="@Url.Action("MyPublishedPosts", "Author", null)">
+        <i class="fas fa-file-alt fa-10x" style="padding:5px;"></i>
+        <h4>Published (@Model.PublishedPostsCount)</h4>
+    </a>
+</div>
+<!--Pending posts-->
+<div id="owned-posts-button" class="d-inline-flex p-2">
+    <a class="btn btn-dashboard" href="@Url.Action("MyPendingPosts", "Author", null)">
+        <i class="fas fa-clock fa-10x" style="padding:5px;"></i>
+        <h4>Pending (@Model.PendingPostsCount)</h4>
+    </a>
+</div>
+<!--Draft posts-->
+<div id="owned-posts-button" class="d-inline-flex p-2">
+    <a class="btn btn-dashboard" href="@Url.Action("MyDraftPosts", "Author", null)">
+        <i class="fas fa-file fa-10x" style="padding:5px;"></i>
+        <h4>Draft (@Model.DraftPostsCount)</h4>
+    </a>
+</div>
+<!--Create new post-->
+<div id="create-posts-button" class="d-inline-flex p-2">
+    @if (Model.ClassCount > 1)
+    {
+        <a class="btn btn-dashboard" id="manyPostTypes">
+            <i class="fas fa-edit fa-10x" style="padding:5px;"></i>
+            <h4>New Post</h4>
+        </a>
+    }
+    else
+    {
+        <a class="btn btn-dashboard" id="onePost">
+            <i class="fas fa-edit fa-10x" style="padding:5px;"></i>
+            <h4>New Post</h4>
+        </a>
+    }
+</div>
+
+

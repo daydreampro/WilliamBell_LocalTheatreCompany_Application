@@ -1,0 +1,40 @@
+﻿@model Int32?
+
+<div class="card">
+    <h5 class="card-header">Add Comment</h5>
+    @{
+        if (User.IsInRole("User") && !User.IsInRole("Silenced"))
+        {
+            <form id="addComment">
+                <fieldset>
+                    <input type="hidden" id="postId" value="@Model" />
+                    <div class="container">
+                        <div class="form-group">
+
+                            <label class="card-subtitle" for="commentTextArea">Comment</label>
+                            <textarea style="resize:none; max-width:none;" required class="form-control" id="commentTextArea" aria-describedby="validationText" rows="4"></textarea>
+                            <div id="commentValidationMessage" class="text-hide"><span id="validationText"></span></div>
+
+                        </div>
+                        <input id="commentButtonSubmit" type="button" value="Comment" class="btn btn-dark" />
+                    </div>
+                </fieldset>
+            </form>
+        }
+
+        else if (User.IsInRole("Silenced"))
+        {
+            <div class="container">
+                <h5>Blocked</h5>
+            </div>
+        }
+        else
+        {
+            <div class="container">
+                <h5 style="margin-top:1%;" class="card-subtitle">Login to comment</h5>
+            </div>
+        }
+    }
+    <div style="margin-top:1%" class="card-footer"></div>
+
+</div>

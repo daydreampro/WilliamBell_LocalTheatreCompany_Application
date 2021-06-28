@@ -1,0 +1,12 @@
+﻿@model IEnumerable<WilliamBell_LTC_Application.Models.ViewModels.ReviewListViewModel>
+@using WilliamBell_LTC_Application.Models
+
+
+<div class="card-columns">
+
+    @foreach (var p in Model)
+    {
+        Html.RenderPartial("~/Views/Reviews/_ReviewArticleList.cshtml", p);
+    }
+
+</div>

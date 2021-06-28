@@ -1,0 +1,218 @@
+﻿@using WilliamBell_LTC_Application.Models.ViewModels
+@model NavBarViewModel
+
+@*<button class="navbar-toggler" type="button" 
+        data-toggle="collapse" data-target="#navbarSupportedContent" 
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+</button>*@
+
+
+<div class="" id="navbarSupportedContent">
+
+<div class="py-1 mb-2">
+    <nav class="nav d-flex justify-content-between">
+        @Html.ActionLink("Home", "Index", "Home", null, new { @class = "nav-link" })
+
+        <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Reviews
+            </a>
+
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <!--standard links-->
+                @Html.ActionLink("All Reviews", "AllReviews", "Reviews", null, new { @class = "dropdown-item" })
+
+                <div class="dropdown-divider"></div>
+
+                <!--making the mega menu-->
+                <div class="d-md-flex align-items-start justify-content-start">
+
+                    <div style="margin: 0 20px 0 20px;">
+                        <h5 class="dropdown-header">Genres</h5>
+                        @foreach (var g in Model.Genres)
+                        {
+                            @Html.ActionLink(g.Name, "AllReviews", "Reviews", new { genreId = g.GenreId }, new { @class = "dropdown-item" })
+                        }
+                    </div>
+
+                    <div style="margin: 0 20px 0 20px;">
+                        <h5 class="dropdown-header">Categories</h5>
+                        @foreach (var c in Model.ReviewCategories)
+                        {
+                            @Html.ActionLink(c.Name, "AllReviews", "Reviews", new { categoryId = c.Id }, new { @class = "dropdown-item" })
+                        }
+                    </div>
+                    <div style="margin: 0 20px 0 20px;">
+                        <div>
+                            <h5 class="dropdown-header">Latest</h5>
+                            <a href="@Url.Action("ViewReview","Reviews",new { postId = Model.PopularReview.PostId })" title="@Model.PopularReview.Title"><img src="@Url.Content(Model.PopularReview.Image)" style="width:100px;height:auto;border-radius:10%" /></a>
+                        </div>
+                        <!--CAN ADD FURTHER QUICK LINKS (I.E. POPULAR)-->
+                    </div>
+
+                    </div>
+            </div>
+
+        </div>
+
+        <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Blog
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                @Html.ActionLink("All Blog Posts", "AllBlogs", "Blogs", null, new { @class = "dropdown-item" })
+                <div class="dropdown-divider"></div>
+                <div class="d-md-flex align-items-start justify-content-start">
+                    <div style="margin: 0 20px 0 20px;">
+                        @{
+                            foreach (var c in Model.Categories)
+                            {
+                                @Html.ActionLink(c.Name, "AllBlogs", "Blogs", new { categoryId = c.CategoryId }, new { @class = "dropdown-item" })
+                            }
+                        }
+                    </div>
+                    <div style="margin: 0 20px 0 20px;">
+                        <h5 class="dropdown-header">Latest</h5>
+                        <a href="@Url.Action("ViewBlog","Blogs",new { postId = Model.PopularBlog.PostId })" title="@Model.PopularBlog.Title"><img src="@Url.Content(Model.PopularBlog.Image)" style="width:100px;height:auto;border-radius:10%" /></a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="nav-item">
+            @Html.ActionLink("News", "AllNews", "News", null, new { @class = "nav-link" })
+        </div>
+
+
+        <div class="nav-item">
+            @Html.ActionLink("Contact", "Contact", "Home", null, new { @class = "nav-link" })
+        </div>
+    </nav>
+</div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*<nav class="navbar navbar-expand-lg navbar-dark" style="margin-bottom:1em;">
+
+    <div class="collapse navbar-collapse" id="navbarMain">
+        <div class="navbar-nav mr-auto d-flex justify-content-between">
+
+            <div class="nav-item">
+                @Html.ActionLink("Home", "Index", "Home", null, new { @class = "nav-link" })
+            </div>
+
+            <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Reviews
+                </a>
+
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <!--standard links-->
+                    @Html.ActionLink("All Reviews", "AllReviews", "Reviews", null, new { @class = "dropdown-item" })
+
+                    <div class="dropdown-divider"></div>
+
+                    <!--making the mega menu-->
+                    <div class="d-md-flex align-items-start justify-content-start">
+
+                        <div style="margin: 0 20px 0 20px;">
+                            <h5 class="dropdown-header">Genres</h5>
+                            @foreach (var g in Model.Genres)
+                            {
+                                @Html.ActionLink(g.Name, "AllReviews", "Reviews", new { genreId = g.GenreId }, new { @class = "dropdown-item" })
+                            }
+                        </div>
+
+                        <div style="margin: 0 20px 0 20px;">
+                            <h5 class="dropdown-header">Categories</h5>
+                            @foreach (var c in Model.ReviewCategories)
+                            {
+                                @Html.ActionLink(c.Name, "AllReviews", "Reviews", new { categoryId = c.Id }, new { @class = "dropdown-item" })
+                            }
+                        </div>
+                        <div style="margin: 0 20px 0 20px;">
+                            <h5 class="dropdown-header">Popular</h5>
+                            <a href="#"><img src="~/Content/Images/Posts/Review/Review1.jpg" style="width:100px;height:auto;border-radius:10%" /></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Blog Posts
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    @Html.ActionLink("All Blog Posts", "AllBlogs", "Blogs", null, new { @class = "dropdown-item" })
+                    <div class="dropdown-divider"></div>
+                    @{
+                        foreach (var c in Model.Categories)
+                        {
+                            @Html.ActionLink(c.Name, "AllBlogs", "Blogs", new { categoryId = c.CategoryId }, new { @class = "dropdown-item" })
+                        }
+                    }
+                </div>
+            </div>
+
+            <div class="nav-item">
+                @Html.ActionLink("News", "AllNews", "News", null, new { @class = "nav-link" })
+            </div>
+
+
+            <div class="nav-item">
+                @Html.ActionLink("Contact", "Contact", "Home", null, new { @class = "nav-link" })
+            </div>
+
+
+
+        </div>
+
+        <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Connect me to the archive!" aria-label="Search">
+            <button class="btn btn-light  my-2 my-sm-0" type="submit">Search</button>
+        </form>
+
+        </div>
+
+</nav>
+*@

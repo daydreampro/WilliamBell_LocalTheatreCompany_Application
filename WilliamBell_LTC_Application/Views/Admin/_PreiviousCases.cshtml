@@ -1,0 +1,22 @@
+﻿@using WilliamBell_LTC_Application.Models
+@using WilliamBell_LTC_Application.Models.ViewModels
+
+@model IEnumerable<Case>
+
+
+<div class="col">
+    <h3>Previous Cases</h3>
+    @{ int j = 1;}
+    @foreach (Case c in Model)
+    {
+        <div>
+            <h4>Case #@j</h4>
+            <h5>Punishment</h5>
+            @c.Punsihment
+            <h5>Moderator Reason</h5>
+            @c.Reason
+        </div>
+        j++;
+    }
+</div>
+

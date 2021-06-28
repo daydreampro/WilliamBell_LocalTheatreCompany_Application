@@ -1,0 +1,56 @@
+﻿@using WilliamBell_LTC_Application.Models.ViewModels
+@using WilliamBell_LTC_Application.Models
+@model IEnumerable<CasesListViewModel>
+
+@{
+    ViewBag.Title = "All Cases";
+}
+
+<h2>All Cases</h2>
+<p>@Html.ActionLink("Back", "Dashboard", "Dashboard", null, new { @class = "btn btn-secondary" })</p>
+<table class="table">
+    <tr>
+        <th>
+            User
+        </th>
+        <th>
+            Reported Items
+        </th>
+        <th>
+            Reports
+        </th>
+        <th>
+            Report Reasons
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @item.Username
+            </td>
+            <td>
+                @item.ReportedItemsCount
+            </td>
+            <td>
+                @item.ReportsCount
+            </td>
+            <td>
+                @foreach (string r in item.ReportReasons)
+                {
+                    @r<span>, </span>
+                }
+            </td>
+            <td>
+                @Html.ActionLink("View", "ViewCase", new { caseId = item.CaseId }, new { @class = "btn btn-dark" })
+            </td>
+        </tr>
+    }
+</table>
+
+@if (ViewBag.Count <= 0)
+{
+    <h6>No Cases Found!</h6>
+}

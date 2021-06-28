@@ -1,0 +1,80 @@
+﻿@using WilliamBell_LTC_Application.Models
+@using WilliamBell_LTC_Application.Models.ViewModels
+
+@model IEnumerable<CaseReportItemDetailsViewModel>
+
+<h3>Reported Items</h3>
+
+@foreach (CaseReportItemDetailsViewModel r in Model)
+{
+<div class="card" style="border-color:#d33f1f; padding:10px 10px 20px 10px" >
+    <!--item specific data!-->
+    <input id="case-item-id-@r.ReportItemId" type="hidden" value="@r.ReportItemId" />
+    <input id="case-item-type-@r.ReportItemId" type="hidden" value="@r.Type" />
+
+    <div class="card-header no-focus-btns" style="padding:10px;">
+            <button id="btn-collapse-report-item" class="btn btn-block text-left text-decoration-none" title="Hide" type="button" data-toggle="collapse" style="padding: 0;"
+                    data-target="#report-item-collapse-@r.ReportItemId" aria-expanded="true" aria-controls="report-item-collapse-@r.ReportItemId">
+                <h3>@r.Type #@r.ReportItemId<span class="expand-area-btn"><i class="icon-expand-rotate fas fa-sort-up"></i></span></h3>
+            </button>
+    </div>
+
+    <div id="report-item-collapse-@r.ReportItemId" class="collapse show">
+        <div class="row">
+            <div class="col">
+                <div>
+                    <h5>Content:</h5>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <p class="card-text text-wrap">@r.Content</p>
+                    </div>
+                </div>
+            </div>
+            <br />
+
+            <div class=" col">
+                <!--REPORTS-->
+                @{Html.RenderPartial("~/Views/Admin/_Reports.cshtml", r.Reports); }
+            </div>
+        </div>
+        <div class="card-footer no-focus-btns" style="margin-top:5px;">
+
+            <button class="btn btn-dark btn-remove-item " title="Remove @r.Type from case" data-toggle="modal" data-target="#case-remove-item-modal" 
+                    value="@r.ReportItemId">Remove</button>
+
+            <!--DO THIS REMOVE INDIVIDUAL REPORTED ITEMS FROM CSAE!-->
+            <span style="padding-left:10px;" class="text-muted">
+            <button class=" btn text-decoration-none" data-toggle="collapse" data-target="#hint-@r.ReportItemId" aria-expanded="false"
+                    aria-controls="hint-@r.ReportItemId">
+                <i class=" fas fa-question-circle"></i></button>
+            <span id="hint-@r.ReportItemId" class="collapse">This will remove the comment from the case, therefore it will not be subject to deletion.</span>
+            </span>
+        </div>
+    </div>
+
+</div>
+<br />
+}
+
+
+<script type="text/javascript">
+    
+    $(document).ready(function () {
+        //just some looks baby
+        $("#btn-collapse-report-item").click(function () {
+            if ($(this).attr("title") == "Show") {
+                $(this).attr("title", "Hide");
+            } else {
+                $(this).attr("title", "Show");
+            }
+            if ($(this).find("i").hasClass("fa-sort-up")) {
+                $(this).find("i").toggleClass("down");
+            } else {
+                $(this).find("i").toggleClass("up");
+            }
+        });
+
+
+    });
+    </script>

@@ -1,0 +1,41 @@
+﻿
+<div id="reply-comment-form" style="display:none; margin-left:25px;" class="card">
+
+    <h5 class="card-header">Reply</h5>
+    @{
+        if (User.IsInRole("User") && !User.IsInRole("Silenced"))
+        {
+            <form id="addReplyToComment">
+                <fieldset>
+                    <input type="hidden" id="reply-comment-id" value="" />
+                    <div class="container">
+                        <div class="form-group">
+
+                            <label class="card-subtitle" for="reply-text-area">Comment</label>
+                            <textarea style="resize:none; max-width:none;" required class="form-control" id="reply-text-area" aria-describedby="reply-validation-text" rows="3"></textarea>
+                            <div id="reply-validation-message" class="text-hide"><span id="reply-validation-text"></span></div>
+
+                        </div>
+                        <input id="reply-button-submit" type="button" value="Reply" class="btn btn-dark" />
+                    </div>
+                </fieldset>
+            </form>
+        }
+
+        else if (User.IsInRole("Silenced"))
+        {
+            <div class="container">
+                <h5>Blocked</h5>
+            </div>
+        }
+        else
+        {
+            <div class="container">
+                <h5 style="margin-top:1%;" class="card-subtitle">Login to comment</h5>
+            </div>
+        }
+    }
+    <div style="margin-top:1%" class="card-footer"></div>
+
+</div>
+

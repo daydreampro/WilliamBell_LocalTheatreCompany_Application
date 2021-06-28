@@ -1,0 +1,41 @@
+﻿@using WilliamBell_LTC_Application.Models
+@using WilliamBell_LTC_Application.Models.ViewModels
+@model WilliamBell_LTC_Application.Models.ViewModels.AuthorCreditViewModel
+
+
+<div class="ltc-author-details bg-dark text-light" style="padding:10px 10px; width:95%; margin:auto;">
+    <h3>
+        Written By:
+    </h3>
+    <hr class="border-light" />
+
+    <div class="d-flex">
+        <div class="flex-row justify-content-center">
+
+            <img src="@Url.Content(Model.Image)"
+                 style="width:100px;height:auto;
+                 object-fit:cover;
+                 border-radius:50%;
+                 border: 3px solid #d33f1f;
+                 background-color:white;" />
+
+            <div class="d-flex justify-content-around" style="margin:5px 0 5px 0;">
+                @foreach (Badge b in Model.Badges)
+                {
+                    <img style="border-radius: 50%; border: 1px solid white; background-color: #d33f1f; width: 20px; margin: 0 2px 0 2px " src="@b.ImageLocation" data-toggle="tooltip" data-placement="bottom" title="@b.Description" />
+                }
+            </div>
+        </div>
+
+        <div class="bg-light text-dark rounded" style="margin-left:20px;padding:10px;">
+            <a class="text-decoration-none ltc-link-primary" href="@Url.Action("ViewProfile","Profiles",new { userId = Model.AuthorId})"><h4>@Model.AuthorName</h4></a>
+            <p>Sollicitudin tempor id eu nisl nunc mi ipsum faucibus vitae. Arcu cursus euismod quis viverra nibh cras pulvinar mattis. Aliquet risus feugiat in ante metus dictum at. Tincidunt id aliquet risus feugiat in ante metus dictum at. Tempor orci dapibus ultrices in iaculis nunc sed. Tortor consequat id porta nibh venenatis cras sed felis eget.</p>
+        </div>
+    </div>
+
+    <hr class="border-light" />
+    
+
+
+   
+</div>

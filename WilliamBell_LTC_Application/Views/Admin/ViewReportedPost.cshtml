@@ -1,0 +1,297 @@
+﻿@using WilliamBell_LTC_Application.Models
+@using WilliamBell_LTC_Application.Models.ViewModels
+@model ReportItemDetailsViewModel
+
+@{
+    ViewBag.Title = "Reported Post";
+}
+<script src="~/Scripts/jquery-3.6.0.min.js"
+        type="text/javascript"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //BUTTON - when submitting guilty verdict on comment
+        $("#report-item-modal-confirm").click(function () {
+            //disable the buttons while processing
+            $("#report-item-modal-confirm").prop("disabled", true);
+            $("#report-item-modal-close").prop("disabled", true);
+
+            //check the state of the form
+            var reason = $("#report-condem-reason").val();
+            var message = $("#report-condem-message").val();
+            var id = $("#report-item-id").val();
+
+            var reasonValid = false;
+            var messageValid = false;
+
+            if (reason == null || reason == "") {
+                reasonValid = false;
+                $("#report-item-modal-reason").show();
+            } else {
+                reasonValid = true;
+                $("#report-item-modal-reason").hide();
+            }
+
+            if (message == null || message == "") {
+                messageValid = false;
+                $("#report-item-modal-message").show();
+            } else {
+                messageValid = true;
+                $("#report-item-modal-message").hide();
+            }
+
+
+            if (reasonValid && messageValid) {
+                $.post("/Admin/GuiltyReportedPost", { "postId": id, "reason": reason, "message": message},
+                    function (data) {
+                        if (data.Success) {
+                            $("#report-item-success").find("p").text(data.Message);
+                            //change the modal
+                            //hide the origional body and buttons
+                            $("#report-item-condem-modal-body").hide("fast");
+                            $("#report-item-modal-confirm").hide("fast");
+                            $("#report-item-modal-close").hide("fast");
+
+                            //show the new body, and back button
+                            $("#report-item-success").show("fast");
+                            $("#report-item-modal-back").show("slow");
+
+                            //after a timeout send the moderator back to all reports
+                            var url = "@Url.Action("AllReports", "Admin")";
+                            setTimeout(function () {
+                                window.location.href = url;
+                            }, 5000);
+
+                        } else {
+                            //if somethign went wrong
+                            //display error then reset sommin
+                            alert(data.Message);
+                            $("#report-item-success").find("p").text(data.Message).addClass("invalid-feedback");
+                            $("#report-item-success").show("fast");
+                            setTimeout(function () {
+                                $("#report-item-success").hide("fast");
+                            },5000);
+                        }
+                        //reabeble the buttons if there is a problem
+                        $("#report-item-modal-confirm").prop("disabled", false);
+                        $("#report-item-modal-close").prop("disabled", false);
+                    });
+            } else {
+                setTimeout(function () {
+                    $("#report-item-modal-confirm").prop("disabled", false);
+                    $("#report-item-modal-close").prop("disabled", false);
+                }, 500);
+            }
+        });
+        //back button
+        $("#report-item-modal-back").click(function () {
+            var url = "@Url.Action("AllReports", "Admin")";
+            window.location.href = url;
+        });
+
+        //show/hide number of days
+        $("#report-item-punishment").on("change", function () {
+            var punish = $(this).val();
+            //onliy show the number of days if an apporpriate punishment is seleceted (0 or 1)
+            if (punish > -1) {
+                $("#number-of-days").show();
+            } else {
+                $("#number-of-days").hide();
+            }
+        });
+
+
+    });
+    //FORGIVE FUNCTION
+    $(document).ready(function () {
+        //FORGIVE FUNCTION
+        $("#report-item-forgive-confirm").click(function () {
+            $("#report-item-forgive-confirm").prop("disabled", true);
+            $("#report-item-forgive-close").prop("disabled", true);
+
+            var reason = $("#report-forgive-reason").val();
+            var id = $("#report-item-id").val();
+
+            if (reason.length <= 0) {
+                $("#report-forgive-reason-required").show("fast");
+                setTimeout(function () {
+                    $("#report-item-forgive-confirm").prop("disabled", false);
+                    $("#report-item-forgive-close").prop("disabled", false);
+                }, 1000)
+            } else {
+                $.post("/Admin/InnocentReportedPost", { "postId": id, "reason": reason }, function (data) {
+
+                    alert(data.Message);
+
+                    if (data.Success) {
+                        //after a timeout send the moderator back to all reports
+                        var url = "@Url.Action("AllReports", "Admin")";
+                        setTimeout(function () {
+                            $("#report-item-forgive-confirm").hide();
+                            $("#report-item-forgive-close").prop("disabled", false);
+                        }, 1000)
+
+                        setTimeout(function () {
+                            window.location.href = url;
+                        }, 5000);
+
+                    } else {
+
+                    }
+
+                });
+            }
+        });
+    });
+</script>
+
+
+<h2>Reported Post</h2>
+<p>
+    @Html.ActionLink("Dashboard", "Dashboard", "Dashboard", null, new { @class = "btn btn-secondary" })
+    @Html.ActionLink("Back", "AllReports", "Admin", null, new { @class = "btn btn-secondary" })
+</p>
+<br />
+
+<div class=" container">
+    <div class="">
+        <input id="report-item-id" type="hidden" value="@Model.ReportItemId" />
+
+        <div class="">
+            <div class="card">
+                <div class="card-body">
+                    <a href="@Url.Action("ViewProfile","Profiles",new {userId = Model.Offender.Id })"><h4>Offender</h4></a><span>@Model.Offender.FirstName @Model.Offender.LastName</span>
+                    <h6>Previous Warnings: </h6>@Model.Offender.NumberOfWarnings
+                    <h6>Previous Blockings: </h6> @Model.Offender.NumberOfBlockings
+                    <h6>Previous Suspensions: </h6>@Model.Offender.NumberOfSuspension
+                </div>
+            </div>
+        </div>
+
+        <div class="">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-subtitle">
+                        <a href="@Url.Action("View"+Model.Type,Model.Cont,new { postId = Model.ReportItemId})"><h4>Content:</h4></a>
+                    </div>
+                    <p class="card-text text-wrap">@Model.Content</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <br />
+
+    <div class="row">
+        <!--REPORTS-->
+        @{Html.RenderPartial("~/Views/Admin/_Reports.cshtml", Model.Reports); }
+
+        <!--PREVIOUS CASES-->
+        @if (Model.PreviousCases.Count > 0)
+        {
+            Html.RenderPartial("~/Views/Admin/_PreviousCases.cshtml", Model.PreviousCases);
+        }
+    </div>
+
+    <br />
+
+    <div class="no-focus-btns">
+        <button id="report-item-condem" class="btn btn-danger" data-toggle="modal" data-target="#report-item-condem-modal">Condem</button>
+        <button id="report-item-ignore" class="btn btn-success" data-toggle="modal" data-target="#report-item-forgive-modal">Ignore</button>
+    </div>
+</div>
+
+<div id="report-item-forgive-modal" class="modal fade" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-labelledby="report-item-forgive-modal" aria-hidden="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="report-item-modal">Forgive reported item?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div id="report-item-forgive-body" class="modal-body">
+                <div>
+                    <p>Would you like to remove the reports and ignore their accusations?</p>
+                    <p class="text-muted">This will prevent further reports from being generated for this comment.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="report-forgive-reason" class="col-form-label">Reason:</label>
+
+                    <textarea class="form-control" style="resize:none;" id="report-forgive-reason" rows="2"></textarea>
+
+                    <span id="report-forgive-reason-required" class="modal-body invalid-feedback" style="display:none;">
+                        Please input a reason!
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button id="report-item-forgive-close" type="button" class="btn btn-dark" data-dismiss="modal">Cancel</button>
+                <button id="report-item-forgive-confirm" type="button" class="btn btn-success" data->Confirm</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="report-item-condem-modal" data-backdrop="static" data-keyboard="true" tabindex="-1" aria-labelledby="report-item-condem-modal" aria-hidden="false">
+
+    <div class="modal-dialog modal-dialog-centered" style="text-align:start !important;">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="report-item-modal">Fill in Verdict:</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div id="report-item-success" class="modal-body" style="display:none;">
+                <p>Reported item successfully processed!</p>
+            </div>
+
+            <div id="report-item-condem-modal-body" class="modal-body">
+                <fieldset>
+                    <input type="hidden" id="flag-comment-id" value="@Model.ReportItemId" />
+
+                    <div class="form-group">
+                        <label for="report-condem-reason" class="col-form-label">Reason:</label>
+                        <textarea class="form-control" style="resize:none;" id="report-condem-reason" rows="2"></textarea>
+                        <span id="report-item-modal-reason" class="modal-body invalid-feedback" style="display:none;">
+                            Please input a reason!
+                        </span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="report-condem-message" class="col-form-label">Message to user:</label>
+                        <textarea class="form-control" style="resize:none;" id="report-condem-message" rows="2"></textarea>
+                        <span id="report-item-modal-message" class="modal-body invalid-feedback" style="display:none;">
+                            Please input a message!
+                        </span>
+                    </div>
+
+                    <div class="form-group" id="number-of-days" style="display:none;">
+                        <label for="report-item-days" class="col-form-label">Select length of punishment (days):</label>
+                        <select id="report-item-days" class="form-control" style="max-width:100px;">
+                            <option value="0">Auto</option>
+                        </select>
+                    </div>
+                </fieldset>
+            </div>
+
+
+
+            <div class="modal-footer">
+                <button id="report-item-modal-close" type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                <button id="report-item-modal-back" type="button" class="btn btn-danger" data-dismiss="modal" style="display:none;">Close</button>
+                <button id="report-item-modal-confirm" type="button" class="btn btn-dark" data->Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,49 @@
+﻿@using WilliamBell_LTC_Application.Models.ViewModels
+@using WilliamBell_LTC_Application.Models
+@model IEnumerable<ClosedCasesListViewModel>
+
+@{
+    ViewBag.Title = "My Closed Cases";
+}
+
+<h2>My Closed Cases</h2>
+<p>
+@Html.ActionLink("Dashboard", "Dashboard", "Dashboard", null, new { @class = "btn btn-secondary" })
+</p>
+<table class="table">
+    <tr>
+        <th>
+            User
+        </th>
+        <th>
+            Verdict
+        </th>
+        <th>
+            Reason
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @item.Username
+            </td>
+            <td>
+                @item.Verdict
+            </td>
+            <td>
+                @item.Reason
+            </td>
+            <td>
+                @Html.ActionLink("View", "ViewClosedCase", new { caseId = item.CaseId }, new { @class = "btn btn-dark" })
+            </td>
+        </tr>
+    }
+
+</table>
+@if (ViewBag.Count <= 0)
+{
+    <h6>No Cases Found!</h6>
+}

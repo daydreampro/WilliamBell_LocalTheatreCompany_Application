@@ -1,0 +1,46 @@
+﻿@using WilliamBell_LTC_Application.Models
+@using WilliamBell_LTC_Application.Models.ViewModels
+
+@model ClosedCaseDetailsViewModel
+@{
+    ViewBag.Title = "ViewClosedCase";
+}
+
+<h2>Closed Case #@Model.CaseId</h2>
+
+<p>
+    @Html.ActionLink("Dashboard", "Dashboard", "Dashboard", null, new { @class = "btn btn-secondary" })
+    @Html.ActionLink("Back", "MyClosedCases", "Admin", null, new { @class = "btn btn-secondary" })
+</p>
+<br />
+
+<div class="container">
+    <!--Main INFO-->
+    <div class="row">
+        <!--Offender Details-->
+
+        @{ Html.RenderPartial("~/Views/Admin/_OffenderInformation.cshtml", Model.Offender);}
+
+        <!--CASE DETAILS-->
+        <div class="col ">
+            <div class="card">
+                <div class="card-body">
+                    <h4>Case Details</h4>
+                    <h6>Case Number: </h6>#@Model.CaseId
+                    <h6>Vedict: </h6>@Model.Verdict
+                    <h6>Reason: </h6>@Model.Reason
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <br />
+    <!--Additional Info-->
+    <!--Each Reported Item
+        and there informationssssssssss-->
+    @{Html.RenderPartial("~/Views/Admin/_ReportedItem.cshtml", Model.ReportsItems);}
+
+
+    <!--PREVIOUS CASES-->
+    
+</div>
