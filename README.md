@@ -15,7 +15,6 @@ reviewer@ltc.co.uk    | reviewer123          | Can create reviews only.         
 reporter@ltc.co.uk    | reporter123          | Can only create news posts.                                          |
 editor@ltc.co.uk      | editor123            | Can edit and review posts by authors and approve or deny the content.|
 moderator@ltc.oc.uk   | mod123               | Can review reported posts and comments.                              |
-admin@ltc.co.uk       | admin123             | Admin can moderate all users and give out additional permissions to  |
-                      |                      | staff members.                                                       |
+admin@ltc.co.uk       | admin123             | Admin can moderate all users and give out additional permissions to staff members. |
                                                
 
